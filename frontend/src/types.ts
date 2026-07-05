@@ -97,6 +97,7 @@ export interface User {
   resume?: string;
   profile_pic?: string;
   skills?: string[];
+  subscription?: string | null;
   created_at?: string;
 }
 
@@ -221,4 +222,10 @@ export interface CompanyWithJobs extends Company {
 export interface CompanyDetailsResponse {
   success: boolean;
   company: CompanyWithJobs;
+}
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
 }

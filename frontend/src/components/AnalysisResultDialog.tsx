@@ -59,15 +59,15 @@ interface ScoreBreakdownCardProps {
 
 function ScoreBreakdownCard({ label, detail }: ScoreBreakdownCardProps) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-4 space-y-2 shadow-sm">
+    <div className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-2 shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-gray-800">{label}</span>
+        <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">{label}</span>
         <span className={`text-sm font-bold ${getScoreColor(detail.score)}`}>
           {detail.score}%
         </span>
       </div>
       <Progress value={detail.score} className="h-1.5" />
-      <p className="text-xs text-gray-500 leading-relaxed">{detail.feedback}</p>
+      <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">{detail.feedback}</p>
     </div>
   );
 }
@@ -78,20 +78,20 @@ interface StrengthsListProps {
 
 function StrengthsList({ strengths }: StrengthsListProps) {
   return (
-    <div className="rounded-xl border border-green-100 bg-green-50/50 p-5 space-y-3">
+    <div className="rounded-xl border border-green-100 dark:border-green-900/30 bg-green-50/50 dark:bg-green-950/10 p-5 space-y-3">
       <div className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-green-500 text-green-500">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-green-500 dark:border-green-400 text-green-500 dark:text-green-400">
           <HugeiconsIcon icon={Tick01Icon} size={13} />
         </div>
-        <h3 className="font-bold text-gray-900">What Your Resume Does Well</h3>
+        <h3 className="font-bold text-gray-900 dark:text-white">What Your Resume Does Well</h3>
       </div>
       <ul className="space-y-2">
         {strengths.map((strength, idx) => (
-          <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+          <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
             <HugeiconsIcon
               icon={Tick01Icon}
               size={14}
-              className="mt-0.5 shrink-0 text-green-500"
+              className="mt-0.5 shrink-0 text-green-500 dark:text-green-400"
             />
             <span>{strength}</span>
           </li>
@@ -107,21 +107,21 @@ interface SuggestionCardProps {
 
 function SuggestionCard({ suggestion }: SuggestionCardProps) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-4 space-y-2 shadow-sm">
+    <div className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-2 shadow-sm">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-bold text-gray-800">{suggestion.category}</span>
+        <span className="text-sm font-bold text-gray-800 dark:text-slate-200">{suggestion.category}</span>
         <span
           className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${PRIORITY_STYLES[suggestion.priority]}`}
         >
           {suggestion.priority}
         </span>
       </div>
-      <p className="text-xs text-gray-600 leading-relaxed">
-        <span className="font-semibold">Issue: </span>
+      <p className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
+        <span className="font-semibold dark:text-slate-300">Issue: </span>
         {suggestion.issue}
       </p>
-      <p className="text-xs text-gray-600 leading-relaxed">
-        <span className="font-semibold">Fix: </span>
+      <p className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
+        <span className="font-semibold dark:text-slate-300">Fix: </span>
         {suggestion.recommendation}
       </p>
     </div>
@@ -155,30 +155,30 @@ export default function AnalysisResultDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[620px] max-h-[90vh] rounded-2xl border-none shadow-2xl p-0 overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[620px] max-h-[90vh] rounded-2xl border border-gray-200 dark:border-slate-700 shadow-2xl p-0 overflow-hidden flex flex-col bg-white dark:bg-slate-900">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-white px-6 py-4">
-          <HugeiconsIcon icon={ChartAverageIcon} size={20} className="text-blue-600 shrink-0" />
-          <DialogTitle className="text-lg font-bold text-gray-900">
+        <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4">
+          <HugeiconsIcon icon={ChartAverageIcon} size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
+          <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
             Your Resume Analysis
           </DialogTitle>
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 bg-gray-50/30">
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 bg-gray-50/30 dark:bg-slate-950/50">
           {/* ATS Score */}
           <ScoreCard atsScore={analysis.atsScore} />
 
           {/* Summary */}
-          <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p className="text-sm leading-relaxed text-gray-700">{analysis.summary}</p>
+          <div className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
+            <p className="text-sm leading-relaxed text-gray-700 dark:text-slate-300">{analysis.summary}</p>
           </div>
 
           {/* Score Breakdown */}
           <section aria-label="Detailed Score Breakdown" className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-base">📈</span>
-              <h3 className="text-base font-bold text-gray-900">Detailed Score Breakdown</h3>
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">Detailed Score Breakdown</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {breakdownEntries.map(([key, detail]) => (
@@ -205,7 +205,7 @@ export default function AnalysisResultDialog({
                   size={20}
                   className="text-amber-500"
                 />
-                <h3 className="text-base font-bold text-gray-900">
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
                   Recommendations for Improvement
                 </h3>
               </div>

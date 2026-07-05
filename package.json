@@ -4,14 +4,19 @@
   "main": "index.js",
   "private": true,
   "workspaces": [
-    "frontend/*",
+    "frontend",
     "services/*"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "wt new-tab cmd /k \"npm run dev --workspace=frontend\" ; new-tab cmd /k \"npm run dev --workspace=auth\" ; new-tab cmd /k \"npm run dev --workspace=user\" ; new-tab cmd /k \"npm run dev --workspace=utils\" ; new-tab cmd /k \"npm run dev --workspace=job\"",
+    "dev-concurrently": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=auth\" \"npm run dev --workspace=user\" \"npm run dev --workspace=utils\" \"npm run dev --workspace=job\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
 }

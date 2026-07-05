@@ -4,19 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Project uses HugeiconsIcon wrapper and icons data from core-free-icons
 import { HugeiconsIcon } from "@hugeicons/react";
-import { 
-  Home01Icon, 
-  Briefcase02Icon, 
-  InformationCircleIcon, 
-  Menu01Icon, 
+import {
+  Home01Icon,
+  Briefcase02Icon,
+  InformationCircleIcon,
+  Menu01Icon,
   UserCircleIcon,
   Sun01Icon,
   Moon01Icon,
+  ComputerIcon,
   Logout01Icon,
   UserIcon,
-  Settings02Icon
+  Settings02Icon,
 } from "@hugeicons/core-free-icons";
 
 import { cn } from "@/lib/utils";
@@ -39,22 +39,18 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useTheme } from "@/components/theme-provider";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
 interface NavItem {
   label: string;
   href: string;
-  icon: any; // Icon data type from @hugeicons/core-free-icons
+  icon: any;
 }
 
 // ─── Configuration ───────────────────────────────────────────────────────────
@@ -73,12 +69,9 @@ const MOBILE_EXTRA_ITEMS: NavItem[] = [
 
 // ─── Components ──────────────────────────────────────────────────────────────
 
-/**
- * Brand Logo component
- */
 const Logo = () => (
-  <Link 
-    href="/" 
+  <Link
+    href="/"
     className="flex items-center gap-0 text-xl font-bold tracking-tight select-none"
     aria-label="HireHeaven - Home"
   >
@@ -87,15 +80,65 @@ const Logo = () => (
   </Link>
 );
 
+const THEME_OPTIONS = [
+  { value: "light" as const, label: "Light", icon: Sun01Icon },
+  { value: "dark" as const, label: "Dark", icon: Moon01Icon },
+  { value: "system" as const, label: "System", icon: ComputerIcon },
+];
+
+function ThemeToggle({ align = "end" }: { align?: "start" | "end" }) {
+  const { theme, setTheme } = useTheme();
+
+  const activeIcon =
+    theme === "dark" ? Moon01Icon : theme === "light" ? Sun01Icon : ComputerIcon;
+
+  return (
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800"
+            aria-label="Toggle theme"
+          />
+        }
+      >
+        <HugeiconsIcon icon={activeIcon} size={20} />
+      </PopoverTrigger>
+      <PopoverContent
+        align={align}
+        className="w-36 p-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 shadow-xl rounded-xl"
+      >
+        <div className="flex flex-col gap-0.5">
+          {THEME_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setTheme(opt.value)}
+              className={cn(
+                "w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer flex items-center gap-2.5",
+                theme === opt.value
+                  ? "bg-blue-600 text-white font-semibold"
+                  : "text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              )}
+            >
+              <HugeiconsIcon icon={opt.icon} size={15} />
+              <span>{opt.label}</span>
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 /**
  * Main Navbar Component
  */
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = React.useState(false);
-  const [isDark, setIsDark] = React.useState(false);
-  
-  // Dummy authentication state
+
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -115,20 +158,20 @@ export default function Navbar() {
     : "??";
 
   return (
-    <header 
-      className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200/80"
+    <header
+      className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200/80 dark:border-slate-800/80"
       role="banner"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-4">
-          
+
           {/* Left: Logo */}
           <div className="flex-shrink-0">
             <Logo />
           </div>
 
           {/* Center: Desktop Navigation */}
-          <nav 
+          <nav
             className="hidden md:flex items-center gap-1"
             aria-label="Desktop navigation"
           >
@@ -140,9 +183,9 @@ export default function Navbar() {
                   href={item.href}
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
-                    active 
-                      ? "text-blue-600 bg-blue-50/50" 
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    active
+                      ? "text-blue-600 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/30"
+                      : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800"
                   )}
                   aria-current={active ? "page" : undefined}
                 >
@@ -155,18 +198,10 @@ export default function Navbar() {
 
           {/* Right: User Actions & Mobile Nav */}
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-3">
-              
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full text-gray-500 hover:text-gray-900"
-                onClick={() => setIsDark(!isDark)}
-                aria-label="Toggle theme"
-              >
-                <HugeiconsIcon icon={isDark ? Moon01Icon : Sun01Icon} size={20} />
-              </Button>
+            <div className="hidden md:flex items-center gap-2">
+
+              {/* Theme Toggle (Desktop) */}
+              <ThemeToggle align="end" />
 
               {isAuthenticated ? (
                 /* User Avatar with Popover */
@@ -174,47 +209,53 @@ export default function Navbar() {
                   <PopoverTrigger
                     nativeButton={false}
                     render={
-                      <Avatar className="h-9 w-9 border border-gray-100 cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all select-none">
+                      <Avatar className="h-9 w-9 border border-gray-200 dark:border-slate-700 cursor-pointer hover:ring-2 hover:ring-blue-500/30 dark:hover:ring-blue-400/20 transition-all select-none">
                         <AvatarImage src={user?.profile_pic} alt={user?.name} />
-                        <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs font-bold">
                           {userInitials}
                         </AvatarFallback>
                       </Avatar>
                     }
                   />
-                  <PopoverContent align="end" className="w-56 p-2">
-                    <div className="p-2 space-y-1">
-                      <div className="px-2 py-1.5 mb-1">
-                        <p className="text-sm font-medium leading-none truncate">{user?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground mt-1 truncate">
-                          {user?.email}
-                        </p>
-                      </div>
-                      <div className="h-px bg-muted mx-2 my-1" />
-                      <Link href="/profile" className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-accent transition-colors">
+                  <PopoverContent
+                    align="end"
+                    className="w-56 p-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 shadow-xl rounded-xl"
+                  >
+                    {/* User info header */}
+                    <div className="px-3 py-2.5 border-b border-gray-100 dark:border-slate-800 mb-1">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white leading-none truncate">{user?.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 truncate">{user?.email}</p>
+                    </div>
+                    <div className="space-y-0.5">
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                      >
                         <HugeiconsIcon icon={UserIcon} size={16} />
                         Profile
                       </Link>
-                      <Link href="/settings" className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-accent transition-colors">
+                      <Link
+                        href="/settings"
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                      >
                         <HugeiconsIcon icon={Settings02Icon} size={16} />
                         Settings
                       </Link>
-                      <div className="h-px bg-muted mx-2 my-1" />
-                      <Button
-                       variant={"destructive"}
+                      <div className="h-px bg-gray-100 dark:bg-slate-800 mx-1 my-1" />
+                      <button
                         onClick={handleLogout}
-                        className="w-full flex justify-start gap-2 px-2 py-1.5 bg-white text-sm rounded-md hover:bg-destructive/10 text-destructive transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
                       >
                         <HugeiconsIcon icon={Logout01Icon} size={16} />
                         Logout
-                      </Button>
+                      </button>
                     </div>
                   </PopoverContent>
                 </Popover>
               ) : (
                 /* Sign In Button */
                 <Link href="/login">
-                  <Button className="bg-[#0f172a] hover:bg-[#1e293b] text-white flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm">
+                  <Button className="bg-[#0f172a] hover:bg-[#1e293b] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white border-none flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
                     <HugeiconsIcon icon={UserIcon} size={18} />
                     Sign In
                   </Button>
@@ -222,33 +263,30 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Navigation Trigger */}
-            <div className="md:hidden flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="default"
-                className="rounded-full text-gray-500"
-                onClick={() => setIsDark(!isDark)}
-              >
-                <HugeiconsIcon icon={isDark ? Moon01Icon : Sun01Icon} size={20} />
-              </Button>
+            {/* Mobile Nav */}
+            <div className="md:hidden flex items-center gap-1">
+              {/* Theme Toggle (Mobile) */}
+              <ThemeToggle align="end" />
 
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger 
+                <SheetTrigger
                   render={
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-gray-600 hover:bg-gray-100"
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800"
                       aria-label="Open Menu"
                     />
                   }
                 >
                   <HugeiconsIcon icon={Menu01Icon} size={24} />
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] p-0">
-                  <SheetHeader className="p-6 border-b text-left">
-                    <SheetTitle 
+                <SheetContent
+                  side="left"
+                  className="w-[300px] p-0 bg-white dark:bg-slate-950 border-r border-gray-200 dark:border-slate-800"
+                >
+                  <SheetHeader className="p-6 border-b border-gray-100 dark:border-slate-800 text-left">
+                    <SheetTitle
                       render={
                         <div className="flex items-center">
                           <Logo />
@@ -266,9 +304,9 @@ export default function Navbar() {
                           onClick={() => setIsOpen(false)}
                           className={cn(
                             "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                            active 
-                              ? "text-blue-600 bg-blue-50" 
-                              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                            active
+                              ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30"
+                              : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800"
                           )}
                         >
                           <HugeiconsIcon icon={item.icon} size={20} />
@@ -276,20 +314,17 @@ export default function Navbar() {
                         </Link>
                       );
                     })}
-                    
-                    <div className="my-2 h-px bg-gray-100" />
-                    
+
+                    <div className="my-2 h-px bg-gray-100 dark:bg-slate-800" />
+
                     {isAuthenticated ? (
                       MOBILE_EXTRA_ITEMS.map((item) => {
                         if (item.label.toLowerCase() === "logout") {
                           return (
                             <button
                               key={item.label}
-                              onClick={() => {
-                                handleLogout();
-                                setIsOpen(false);
-                              }}
-                              className="flex  items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                              onClick={() => { handleLogout(); setIsOpen(false); }}
+                              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors w-full text-left cursor-pointer"
                             >
                               <HugeiconsIcon icon={item.icon} size={20} />
                               <span className="capitalize">{item.label}</span>
@@ -301,7 +336,7 @@ export default function Navbar() {
                             key={item.href}
                             href={item.href}
                             onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
                           >
                             <HugeiconsIcon icon={item.icon} size={20} />
                             {item.label}
@@ -310,9 +345,9 @@ export default function Navbar() {
                       })
                     ) : (
                       <Link
-                        href="/signin"
+                        href="/login"
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-blue-600 bg-blue-50"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30"
                       >
                         <HugeiconsIcon icon={UserIcon} size={20} />
                         Sign In

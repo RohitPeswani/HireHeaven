@@ -135,19 +135,19 @@ export default function UploadDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[520px] rounded-2xl border-none shadow-2xl p-6 space-y-5">
+      <DialogContent className="sm:max-w-[520px] rounded-2xl border border-gray-200 dark:border-slate-700 shadow-2xl bg-white dark:bg-slate-900 p-6 space-y-5">
         <DialogHeader className="space-y-1">
           <div className="flex items-center gap-2">
             <HugeiconsIcon
               icon={File01Icon}
               size={22}
-              className="text-red-500"
+              className="text-red-500 dark:text-red-400"
             />
-            <DialogTitle className="text-xl font-bold text-gray-900">
+            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
               Upload Your Resume
             </DialogTitle>
           </div>
-          <DialogDescription className="text-sm text-gray-500">
+          <DialogDescription className="text-sm text-gray-500 dark:text-slate-400">
             Upload your resume in PDF format to get an instant ATS compatibility
             analysis
           </DialogDescription>
@@ -168,8 +168,8 @@ export default function UploadDialog({
           className={`
             relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed
             px-6 py-10 transition-colors
-            ${isDragging ? "border-blue-400 bg-blue-50" : "border-blue-200 bg-blue-50/30"}
-            ${!selectedFile ? "cursor-pointer hover:border-blue-400 hover:bg-blue-50" : "cursor-default"}
+            ${isDragging ? "border-blue-400 bg-blue-50 dark:bg-blue-950/20" : "border-blue-200 dark:border-blue-900/30 bg-blue-50/30 dark:bg-blue-950/10"}
+            ${!selectedFile ? "cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20" : "cursor-default"}
           `}
         >
           <input
@@ -183,16 +183,16 @@ export default function UploadDialog({
 
           {selectedFile ? (
             /* Selected File Display */
-            <div className="flex w-full items-center justify-between gap-3 rounded-lg bg-white border border-gray-200 px-4 py-3 shadow-sm">
+            <div className="flex w-full items-center justify-between gap-3 rounded-lg bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 px-4 py-3 shadow-sm">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50">
-                  <HugeiconsIcon icon={File01Icon} size={18} className="text-red-500" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/20">
+                  <HugeiconsIcon icon={File01Icon} size={18} className="text-red-500 dark:text-red-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-gray-800">
+                  <p className="truncate text-sm font-semibold text-gray-800 dark:text-slate-200">
                     {selectedFile.name}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-slate-500">
                     {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                   </p>
                 </div>
@@ -203,7 +203,7 @@ export default function UploadDialog({
                   e.stopPropagation();
                   handleRemoveFile();
                 }}
-                className="shrink-0 rounded-full p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                className="shrink-0 rounded-full p-1.5 text-gray-400 dark:text-slate-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-500 dark:hover:text-red-400"
               >
                 <HugeiconsIcon icon={Delete02Icon} size={16} />
               </button>
@@ -211,14 +211,14 @@ export default function UploadDialog({
           ) : (
             /* Upload Prompt */
             <>
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
-                <HugeiconsIcon icon={FileUploadIcon} size={28} className="text-blue-500" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/20">
+                <HugeiconsIcon icon={FileUploadIcon} size={28} className="text-blue-500 dark:text-blue-400" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-semibold text-gray-700">
+                <p className="text-sm font-semibold text-gray-700 dark:text-slate-300">
                   Click to upload your resume
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
                   PDF format only, maximum {MAX_FILE_SIZE_MB}MB
                 </p>
               </div>
@@ -230,7 +230,7 @@ export default function UploadDialog({
         <Button
           onClick={handleAnalyze}
           disabled={!selectedFile || isLoading}
-          className="w-full h-11 rounded-xl bg-[#0f172a] font-semibold text-white hover:bg-[#1e293b] disabled:opacity-50"
+          className="w-full h-11 rounded-xl bg-[#0f172a] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 font-semibold text-white hover:bg-[#1e293b] disabled:opacity-50"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">

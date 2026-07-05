@@ -10,9 +10,9 @@ import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { 
-  Location01Icon, 
-  CurrencyIcon, 
+import {
+  Location01Icon,
+  CurrencyIcon,
   UserGroupIcon,
   Briefcase01Icon,
   ArrowLeft01Icon,
@@ -113,7 +113,7 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
       const data = await response.json();
       if (data.success) {
         toast.success("Application updated");
-        setJobApplications(prev => 
+        setJobApplications(prev =>
           prev.map(app => app.application_id === appId ? { ...app, status: data.application.status } : app)
         );
         setSelectedStatus(prev => {
@@ -167,7 +167,7 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
     try {
       const response = await fetch(`${USER_API_BASE}/api/user/apply/${jobId}`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         }
@@ -199,142 +199,142 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   if (!job) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-slate-950 pb-20">
       {/* Hero Header */}
       <div className="bg-blue-600 text-white pt-10 pb-20 px-4 md:px-8 shadow-inner overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/10 rounded-full -ml-16 -mb-16 blur-2xl" />
-          
-          <div className="max-w-5xl mx-auto space-y-6 relative z-10">
-            <button 
-                onClick={() => router.back()} 
-                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium mb-4 group"
-            >
-                <HugeiconsIcon icon={ArrowLeft01Icon} size={20} className="group-hover:-translate-x-1 transition-transform" />
-                Back to search
-            </button>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/10 rounded-full -ml-16 -mb-16 blur-2xl" />
 
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-              <div className="space-y-4">
-                <Badge className="bg-green-400/20 text-white border-green-400/50 px-3 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                    Open
-                </Badge>
-                <div className="space-y-1">
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-                        {job.title}
-                    </h1>
-                    <div className="flex items-center gap-2 text-blue-100 font-semibold text-lg">
-                        <HugeiconsIcon icon={Briefcase01Icon} size={20} />
-                        {job.company_name}
-                    </div>
+        <div className="max-w-5xl mx-auto space-y-6 relative z-10">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium mb-4 group"
+          >
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={20} className="group-hover:-translate-x-1 transition-transform" />
+            Back to search
+          </button>
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="space-y-4">
+              <Badge className="bg-green-400/20 text-white border-green-400/50 px-3 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                Open
+              </Badge>
+              <div className="space-y-1">
+                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                  {job.title}
+                </h1>
+                <div className="flex items-center gap-2 text-blue-100 font-semibold text-lg">
+                  <HugeiconsIcon icon={Briefcase01Icon} size={20} />
+                  {job.company_name}
                 </div>
               </div>
+            </div>
 
-              <div className="flex-shrink-0">
-                {user?.role !== "recruiter" && (
-                  isApplied ? (
-                      <Button 
-                          disabled 
-                          className="h-14 px-8 bg-white/10 text-white border border-white/20 rounded-2xl opacity-100 backdrop-blur-md font-bold text-lg flex items-center gap-3 cursor-default"
-                      >
-                          <HugeiconsIcon icon={Tick01Icon} size={24} className="text-green-400" />
-                          Already Applied
-                      </Button>
-                  ) : (
-                      <Button 
-                          onClick={handleApply}
-                          disabled={applying}
-                          className="h-14 px-10 bg-gray-900 text-white hover:bg-gray-800 rounded-2xl font-bold text-lg shadow-2xl transition-all hover:scale-105 active:scale-100 flex items-center gap-3"
-                      >
-                          {applying ? <Loader size={20} className="text-white" /> : <HugeiconsIcon icon={Briefcase01Icon} size={24} />}
-                          {applying ? "Applying..." : "Easy Apply"}
-                      </Button>
-                  )
-                )}
-              </div>
+            <div className="flex-shrink-0">
+              {user?.role !== "recruiter" && (
+                isApplied ? (
+                  <Button
+                    disabled
+                    className="h-14 px-8 bg-white/10 text-white border border-white/20 rounded-2xl opacity-100 backdrop-blur-md font-bold text-lg flex items-center gap-3 cursor-default"
+                  >
+                    <HugeiconsIcon icon={Tick01Icon} size={24} className="text-green-400" />
+                    Already Applied
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleApply}
+                    disabled={applying}
+                    className="h-14 px-10 bg-[#0f172a] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white hover:bg-[#1e293b] rounded-2xl font-bold text-lg shadow-2xl transition-all hover:scale-105 active:scale-100 flex items-center gap-3"
+                  >
+                    {applying ? <Loader size={20} className="text-white" /> : <HugeiconsIcon icon={Briefcase01Icon} size={24} />}
+                    {applying ? "Applying..." : "Easy Apply"}
+                  </Button>
+                )
+              )}
             </div>
           </div>
+        </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto -mt-12 px-4 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-8 relative z-20">
-          {/* Metadata Cards */}
-          <div className="bg-white p-6 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-                  <HugeiconsIcon icon={Location01Icon} size={24} />
-              </div>
-              <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Location</p>
-                  <p className="font-bold text-gray-900 leading-tight">{job.location}</p>
-              </div>
+        {/* Metadata Cards */}
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
+          <div className="w-12 h-12 bg-blue-50 dark:bg-blue-955/20 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <HugeiconsIcon icon={Location01Icon} size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-gray-400 dark:text-slate-550 uppercase tracking-wider">Location</p>
+            <p className="font-bold text-gray-900 dark:text-white leading-tight">{job.location}</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
+          <div className="w-12 h-12 bg-green-50 dark:bg-green-955/20 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400">
+            <HugeiconsIcon icon={CurrencyIcon} size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-gray-400 dark:text-slate-550 uppercase tracking-wider">Salary</p>
+            <p className="font-bold text-gray-900 dark:text-white leading-tight">₹ {job.salary.toLocaleString()} P.A</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
+          <div className="w-12 h-12 bg-purple-50 dark:bg-purple-955/20 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400">
+            <HugeiconsIcon icon={UserGroupIcon} size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-gray-400 dark:text-slate-550 uppercase tracking-wider">Openings</p>
+            <p className="font-bold text-gray-900 dark:text-white leading-tight">{job.openings} positions</p>
+          </div>
+        </div>
+
+        {/* Description Section */}
+        <div className="md:col-span-3 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-8">
+          <div className="flex items-center gap-3 border-b border-gray-100 dark:border-slate-800 pb-6">
+            <div className="w-10 h-10 bg-gray-900 dark:bg-white text-white dark:text-slate-900 rounded-xl flex items-center justify-center">
+              <HugeiconsIcon icon={InformationCircleIcon} size={20} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Job Description</h2>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
-                  <HugeiconsIcon icon={CurrencyIcon} size={24} />
-              </div>
-              <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Salary</p>
-                  <p className="font-bold text-gray-900 leading-tight">₹ {job.salary.toLocaleString()} P.A</p>
-              </div>
+          <div className="prose prose-blue max-w-none text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+            {job.description || "No description provided."}
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
-              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
-                  <HugeiconsIcon icon={UserGroupIcon} size={24} />
-              </div>
-              <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Openings</p>
-                  <p className="font-bold text-gray-900 leading-tight">{job.openings} positions</p>
-              </div>
+          {/* Additional Details (Optional Grid) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-gray-100 dark:border-slate-800">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-gray-400 dark:text-slate-550">Job Type</p>
+              <Badge variant="outline" className="rounded-lg bg-gray-50 dark:bg-slate-950 font-bold border-gray-200 dark:border-slate-800 dark:text-slate-300">{job.job_type}</Badge>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-gray-400 dark:text-slate-550">Role</p>
+              <p className="font-bold text-gray-900 dark:text-white">{job.role}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-gray-400 dark:text-slate-550">Work Location</p>
+              <p className="font-bold text-gray-900 dark:text-white">{job.work_location}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-gray-400 dark:text-slate-550">Posted Date</p>
+              <p className="font-bold text-gray-900 dark:text-white">{new Date(job.created_at).toLocaleDateString()}</p>
+            </div>
           </div>
-
-          {/* Description Section */}
-          <div className="md:col-span-3 bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 space-y-8">
-              <div className="flex items-center gap-3 border-b border-gray-50 pb-6">
-                  <div className="w-10 h-10 bg-gray-900 text-white rounded-xl flex items-center justify-center">
-                    <HugeiconsIcon icon={InformationCircleIcon} size={20} />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900">Job Description</h2>
-              </div>
-              
-              <div className="prose prose-blue max-w-none text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {job.description || "No description provided."}
-              </div>
-
-              {/* Additional Details (Optional Grid) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-gray-50">
-                  <div className="space-y-1">
-                      <p className="text-sm font-semibold text-gray-400">Job Type</p>
-                      <Badge variant="outline" className="rounded-lg bg-gray-50 font-bold border-gray-200">{job.job_type}</Badge>
-                  </div>
-                  <div className="space-y-1">
-                      <p className="text-sm font-semibold text-gray-400">Role</p>
-                      <p className="font-bold text-gray-900">{job.role}</p>
-                  </div>
-                  <div className="space-y-1">
-                      <p className="text-sm font-semibold text-gray-400">Work Location</p>
-                      <p className="font-bold text-gray-900">{job.work_location}</p>
-                  </div>
-                  <div className="space-y-1">
-                      <p className="text-sm font-semibold text-gray-400">Posted Date</p>
-                      <p className="font-bold text-gray-900">{new Date(job.created_at).toLocaleDateString()}</p>
-                  </div>
-              </div>
-          </div>
+        </div>
       </div>
 
       {/* Recruiter Applications Section */}
       {isOwnJob && (
         <div className="max-w-5xl mx-auto mt-12 px-4 md:px-0">
-          <div className="flex items-center justify-between border-b border-gray-150 pb-4 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">All Applications</h2>
+          <div className="flex items-center justify-between border-b border-gray-150 dark:border-slate-800 pb-4 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">All Applications</h2>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-500">Filter:</span>
-              <select 
-                value={statusFilter} 
+              <span className="text-sm font-semibold text-gray-500 dark:text-slate-400">Filter:</span>
+              <select
+                value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm bg-white font-medium text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-sm bg-white dark:bg-slate-950 font-medium text-gray-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="All Status">All Status</option>
                 <option value="Submitted">Submitted</option>
@@ -351,23 +351,23 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           ) : filteredApplications.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 pb-20">
               {filteredApplications.map((app) => (
-                <div key={app.application_id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                <div key={app.application_id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
                   <div className="flex items-center justify-between">
                     <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${getStatusBadgeClass(app.status)}`}>
                       {app.status}
                     </span>
                   </div>
-                  
-                  <div className="flex items-center gap-4 text-xs font-bold text-blue-600">
-                    <a 
-                      href={app.resume} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+
+                  <div className="flex items-center gap-4 text-xs font-bold text-blue-600 dark:text-blue-450">
+                    <a
+                      href={app.resume}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="hover:underline"
                     >
                       View Resume
                     </a>
-                    <Link 
+                    <Link
                       href={`/profile/${app.applicant_id}`}
                       className="hover:underline"
                     >
@@ -379,27 +379,27 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     <select
                       value={selectedStatus[app.application_id] || ""}
                       onChange={(e) => handleStatusSelect(app.application_id, e.target.value)}
-                      className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 bg-white dark:bg-slate-950 text-sm text-gray-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Update status</option>
                       <option value="Submitted">Submitted</option>
                       <option value="Hired">Hired</option>
                       <option value="Rejected">Rejected</option>
                     </select>
-                    
+
                     <Button
                       onClick={() => handleUpdateStatus(app.application_id)}
                       disabled={updatingStatus[app.application_id] || !selectedStatus[app.application_id]}
-                      className="bg-gray-900 hover:bg-gray-800 text-white font-bold px-6 py-4 rounded-xl text-sm min-w-[90px]"
+                      className="bg-gray-900 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 hover:bg-gray-800 text-white font-bold px-6 py-4 rounded-xl text-sm min-w-[90px]"
                     >
-                      {updatingStatus[app.application_id] ? <Loader size={16} className="text-white" /> : "Update"}
+                      {updatingStatus[app.application_id] ? <Loader size={16} className="text-white dark:text-black" /> : "Update"}
                     </Button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-500 font-semibold bg-white rounded-3xl border border-gray-100 shadow-sm">
+            <div className="text-center py-12 text-gray-500 dark:text-slate-400 font-semibold bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm">
               No application Yet.
             </div>
           )}

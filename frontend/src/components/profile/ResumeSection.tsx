@@ -53,19 +53,19 @@ const ResumeSection: React.FC<ResumeSectionProps> = ({
 
   return (
     <div className="mt-8 space-y-4">
-      <div className="flex items-center gap-2 px-2 text-gray-900 font-semibold">
-          <HugeiconsIcon icon={File01Icon} size={20} className="text-blue-600" />
+      <div className="flex items-center gap-2 px-2 text-gray-900 dark:text-white font-semibold">
+          <HugeiconsIcon icon={File01Icon} size={20} className="text-blue-600 dark:text-blue-400" />
           <span>Resume</span>
       </div>
 
       <Card className="border shadow-none">
         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           {loading ? <Loader size={18} text={"Uploading resume"} />:<><div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="p-3 bg-red-50 rounded-lg">
-              <HugeiconsIcon icon={File01Icon} size={24} className="text-red-500" />
+            <div className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg">
+              <HugeiconsIcon icon={File01Icon} size={24} className="text-red-500 dark:text-red-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-xs" title={resumeFilename}>
+              <p className="text-sm font-semibold text-gray-900 dark:text-slate-200 truncate max-w-[200px] sm:max-w-xs" title={resumeFilename}>
                 {resumeFilename}
               </p>
               {user?.resume && (
@@ -95,7 +95,7 @@ const ResumeSection: React.FC<ResumeSectionProps> = ({
                 variant="outline" 
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full sm:w-auto px-6 font-medium hover:bg-gray-50 border-gray-200"
+                className="w-full sm:w-auto px-6 font-medium hover:bg-gray-50 dark:hover:bg-slate-800 border-gray-200 dark:border-slate-700 dark:text-slate-300"
               >
                 Update
               </Button>

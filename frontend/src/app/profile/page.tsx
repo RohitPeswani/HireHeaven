@@ -16,6 +16,7 @@ import CompaniesSection from "@/components/profile/CompaniesSection";
 import AddCompanyModal from "@/components/profile/AddCompanyModal";
 import { Company } from "@/types";
 import { fetchApplications } from "@/store/applicationsSlice";
+import SubscriptionSection from "@/components/profile/SubscriptionSection";
 
 const USER_API_BASE = process.env.NEXT_PUBLIC_USER_SERVICE_URL || "http://localhost:5002";
 const JOB_API_BASE = process.env.NEXT_PUBLIC_JOB_SERVICE_URL || "http://localhost:5003";
@@ -33,12 +34,12 @@ export default function ProfilePage() {
   const setSectionLoading = (
     section: string,
     value: boolean
-) => {
+  ) => {
     setLoading(prev => ({
-        ...prev,
-        [section]: value
+      ...prev,
+      [section]: value
     }));
-};
+  };
 
   const fetchCompanies = useCallback(async () => {
     setSectionLoading("companies", true);
@@ -53,7 +54,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to fetch companies:", error);
-    }finally{
+    } finally {
       setSectionLoading("companies", false);
     }
   }, [token]);
@@ -67,7 +68,7 @@ export default function ProfilePage() {
   }, [isAuthenticated, fetchCompanies, user?.role]);
 
   useEffect(() => {
-    if(token){
+    if (token) {
       dispatch(fetchApplications(token)).unwrap().catch(error => {
         toast.error(error);
       });
@@ -115,7 +116,7 @@ export default function ProfilePage() {
       }
     } catch (err) {
       toast.error("An error occurred during upload");
-    }finally{
+    } finally {
       setSectionLoading("avatar", false);
     }
   };
@@ -138,18 +139,18 @@ export default function ProfilePage() {
     } else {
       setSectionLoading("resume", false);
       throw new Error(result.message || "Failed to upload resume");
-      
+
     }
   };
 
   const handleSkillsUpdate = async (skills: string[]) => {
     setSectionLoading("skills", true);
     if (!token || !user) return;
-    
+
     // The backend seems to have individual add/delete endpoints, 
     // but the frontend UI I built passes the full list.
     // I check if I should call add or delete based on difference.
-    
+
     const prevSkills = user.skills || [];
     const added = skills.filter(s => !prevSkills.includes(s));
     const removed = prevSkills.filter(s => !skills.includes(s));
@@ -157,52 +158,52 @@ export default function ProfilePage() {
     if (added.length > 0) {
       for (const skillName of added) {
         try {
-        const response = await fetch(`${USER_API_BASE}/api/user/skills`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ skillName }),
-        });
-        const result = await response.json();
-        if (result.success && result.user) {
-          toast.success("skill added successfully");
-          dispatch(setUser({ user: result.user, token }));
-          
-        }
+          const response = await fetch(`${USER_API_BASE}/api/user/skills`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ skillName }),
+          });
+          const result = await response.json();
+          if (result.success && result.user) {
+            toast.success("skill added successfully");
+            dispatch(setUser({ user: result.user, token }));
+
+          }
         } catch (error) {
           console.log(error);
           toast.error("Failed to add skill");
-        }finally{
+        } finally {
           setSectionLoading("skills", false);
         }
       }
     }
 
-     setSectionLoading("skills", false);
+    setSectionLoading("skills", false);
     if (removed.length > 0) {
 
       for (const skillName of removed) {
         try {
-        
-        const response = await fetch(`${USER_API_BASE}/api/user/skills`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ skillName }),
-        });
-        const result = await response.json();
-        if (result.success && result.user) {
-          toast.success("skill removed successfully");
-          dispatch(setUser({ user: result.user, token }));
+
+          const response = await fetch(`${USER_API_BASE}/api/user/skills`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ skillName }),
+          });
+          const result = await response.json();
+          if (result.success && result.user) {
+            toast.success("skill removed successfully");
+            dispatch(setUser({ user: result.user, token }));
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error("Failed to remove skill");
         }
-      } catch (error) {
-        console.log(error);
-        toast.error("Failed to remove skill");
-      }
       }
     }
   };
@@ -250,7 +251,7 @@ export default function ProfilePage() {
       }
     } catch (err) {
       toast.error("An error occurred while deleting company");
-    }finally{
+    } finally {
       setSectionLoading("delete", false);
     }
   };
@@ -258,55 +259,56 @@ export default function ProfilePage() {
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <h2 className="text-2xl font-bold text-gray-900">Please sign in to view your profile</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Please sign in to view your profile</h2>
       </div>
     );
   }
 
   return (
     <div className="px-4 py-8 space-y-8 animate-in fade-in duration-500">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
         <ProfileHeader
-          onEditAvatar={() => avatarInputRef.current?.click()} 
+          onEditAvatar={() => avatarInputRef.current?.click()}
           onEditName={() => setIsEditModalOpen(true)}
           loading={loading.avatar}
         />
-        <input 
-          type="file" 
-          className="hidden" 
-          ref={avatarInputRef} 
-          onChange={handleAvatarUpload} 
+        <input
+          type="file"
+          className="hidden"
+          ref={avatarInputRef}
+          onChange={handleAvatarUpload}
           accept="image/*"
         />
 
         <div className="p-6 pt-0 space-y-8">
           <ProfileInfo user={user} />
           {user?.role !== "recruiter" && <ResumeSection user={user} onUpload={handleResumeUpload} loading={loading.resume} />}
-          
-          {user?.role !== "recruiter" && (
-            <>
-              <div className="h-px bg-gray-100" />
+          {user?.role !== "recruiter" && <SubscriptionSection user={user} />}
+
+          {user?.role !== "recruiter" && <>
+              <div className="h-px bg-gray-100 dark:bg-slate-800" />
+
               <SkillsSection user={user} onSkillsUpdate={handleSkillsUpdate} loading={loading.skills} />
               <ApplicationsSection applications={applications} />
             </>
-          )}
+          }
         </div>
       </div>
 
       {user?.role === "recruiter" && (
-        <CompaniesSection 
-          companies={companies} 
-          onDelete={handleDeleteCompany} 
-          onAddClick={() => setIsAddCompanyModalOpen(true)} 
+        <CompaniesSection
+          companies={companies}
+          onDelete={handleDeleteCompany}
+          onAddClick={() => setIsAddCompanyModalOpen(true)}
           loading={loading.delete}
           companiesLoading={loading.companies}
         />
       )}
 
-      <EditProfileModal 
-        user={user} 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
+      <EditProfileModal
+        user={user}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
         onSave={handleUpdateProfile}
       />
 

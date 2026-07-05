@@ -19,11 +19,11 @@ interface SkillsSectionProps {
   isReadOnly?: boolean;
 }
 
-const SkillsSection: React.FC<SkillsSectionProps> = ({ 
-  user, 
-  onSkillsUpdate, 
+const SkillsSection: React.FC<SkillsSectionProps> = ({
+  user,
+  onSkillsUpdate,
   loading = false,
-  isReadOnly = false 
+  isReadOnly = false
 }) => {
   const [newSkill, setNewSkill] = useState("");
   const currentSkills = user?.skills || [];
@@ -41,7 +41,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
       if (onSkillsUpdate) {
         await onSkillsUpdate([...currentSkills, skill]);
         setNewSkill("");
-        
+
       }
     } catch (err) {
       console.log(err);
@@ -59,7 +59,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
   };
 
   return (
-    <Card className="overflow-hidden border-none shadow-md mb-8">
+    <Card className="overflow-hidden border border-gray-150 dark:border-slate-800 shadow-sm mb-8 bg-white dark:bg-slate-950">
       <div className="bg-blue-600 p-6 flex items-center gap-3">
         <div className="p-2 bg-white/20 rounded-lg">
           <HugeiconsIcon icon={Award01Icon} size={24} className="text-white" />
@@ -76,19 +76,19 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <HugeiconsIcon icon={CourseIcon} size={18} />
               </span>
-              <Input 
+              <Input
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
-                placeholder="e.g. React, Node.js, Python..." 
-                className="pl-10 h-11 border-gray-200"
+                placeholder="e.g. React, Node.js, Python..."
+                className="pl-10 h-11 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 dark:text-white"
                 onKeyPress={(e) => e.key === "Enter" && handleAddSkill()}
               />
             </div>
-            <Button 
+            <Button
               onClick={handleAddSkill}
-              className="h-11 bg-gray-800 hover:bg-gray-600 text-white gap-2 px-6"
+              className="h-11 bg-[#0f172a] hover:bg-[#1e293b] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white gap-2 px-6"
             >
-              {loading ? <Loader size={18} text={"Adding skills"} className="text-white"/> : <HugeiconsIcon icon={Add01Icon} size={18} />}
+              {loading ? <Loader size={18} text={"Adding skills"} className="text-white" /> : <HugeiconsIcon icon={Add01Icon} size={18} />}
               {loading ? "" : "Add Skill"}
             </Button>
           </div>
@@ -97,14 +97,14 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
         <div className="flex flex-wrap gap-3">
           {currentSkills.length > 0 ? (
             currentSkills.map((skill) => (
-              <Badge 
-                key={skill} 
-                variant="secondary" 
-                className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 text-sm font-medium gap-2 border-none rounded-full"
+              <Badge
+                key={skill}
+                variant="secondary"
+                className="bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 px-4 py-2 text-sm font-medium gap-2 border-none rounded-full"
               >
                 {skill}
                 {!isReadOnly && (
-                  <button 
+                  <button
                     onClick={() => handleRemoveSkill(skill)}
                     className="hover:text-red-500 transition-colors"
                     aria-label={`Remove ${skill}`}

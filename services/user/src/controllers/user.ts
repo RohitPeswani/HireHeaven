@@ -310,12 +310,14 @@ export const applyForJob = tryCatch(async(req : AuthenticatedRequest, res, next)
     //     return next(new ErrorHandler(400, "Your subscription has expired"));
     // }
 
+    const isSubscribed = user.subscription && new Date(user.subscription).getTime() > Date.now();
+
     const existingApplication = await sql`SELECT application_id FROM applications WHERE job_id = ${jobId} AND applicant_id = ${applicant_id}`;
 
     if(existingApplication.length > 0){
         return next(new ErrorHandler(400, "You have already applied for this job"));
     }
-    const [application] = await sql`INSERT INTO applications (job_id, applicant_id, applicant_email, resume, subscribed) VALUES (${jobId}, ${applicant_id}, ${user.email}, ${resume}, ${false}) RETURNING *`;
+    const [application] = await sql`INSERT INTO applications (job_id, applicant_id, applicant_email, resume, subscribed) VALUES (${jobId}, ${applicant_id}, ${user.email}, ${resume}, ${isSubscribed}) RETURNING *`;
 
     return res.status(200).json({
         success : true,
@@ -329,7 +331,6 @@ export const getAllApplications = tryCatch(async(req : AuthenticatedRequest, res
     if(!user){
        return next(new ErrorHandler(401, "Unauthorized"));
     }
-
 
     const applicant_id = user.user_id;
 

@@ -102,12 +102,12 @@ const LoginForm = () => {
 
         <Button 
           type="submit" 
-          className="w-full h-12 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-lg font-semibold group flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="w-full h-12 bg-[#0f172a] dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 hover:bg-[#1e293b] text-white rounded-lg font-semibold group flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           disabled={isSubmitting || !isValid}
         >
           {isSubmitting ? (
             <>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white dark:border-black/20 dark:border-t-black" />
               <span>Signing in...</span>
             </>
           ) : (

@@ -11,10 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { 
-  Building02Icon, 
-  GlobalIcon, 
-  Briefcase01Icon, 
+import {
+  Building02Icon,
+  GlobalIcon,
+  Briefcase01Icon,
   Add01Icon,
   HelpCircleIcon
 } from "@hugeicons/core-free-icons";
@@ -67,17 +67,17 @@ export default function CompanyPage() {
     console.log(values);
     if (!token || !company) return;
     try {
-      const url = editingJob 
+      const url = editingJob
         ? `${JOB_API_BASE}/api/job/${editingJob.job_id}`
         : `${JOB_API_BASE}/api/job/new`;
-      
+
       const method = editingJob ? "PATCH" : "POST";
-      
+
       const response = await fetch(url, {
         method,
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
           ...values,
@@ -87,10 +87,10 @@ export default function CompanyPage() {
       const data = await response.json();
       if (data.success) {
         toast.success(editingJob ? "Job updated successfully" : "Job posted successfully");
-        if(data.company){
-            setCompany(data.company);
+        if (data.company) {
+          setCompany(data.company);
         }
- 
+
       } else {
         toast.error(data.message || `Failed to ${editingJob ? "update" : "post"} job`);
       }
@@ -130,7 +130,7 @@ export default function CompanyPage() {
           <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl"></div>
           <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-blue-400/20 blur-3xl"></div>
         </div>
-        
+
         <div className="px-6 pb-8 relative">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-16 sm:-mt-20">
             <div className="flex flex-col sm:flex-row sm:items-end gap-6">
@@ -142,7 +142,7 @@ export default function CompanyPage() {
                   </AvatarFallback>
                 </Avatar>
               </div>
-              
+
               <div className="space-y-2 mb-2">
                 <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
                   {company.name}
@@ -154,10 +154,10 @@ export default function CompanyPage() {
             </div>
 
             <div className="flex items-center gap-3 mb-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => window.open(company.website, "_blank")}
-                className="bg-gray-900 border-none text-white hover:bg-gray-800 gap-2 h-12 px-6 rounded-xl font-bold shadow-lg shadow-gray-200"
+                className="bg-gray-900 border-none text-white dark:text-black cursor-pointer gap-2 h-12 px-6 rounded-xl font-bold shadow-lg shadow-gray-200"
               >
                 <HugeiconsIcon icon={GlobalIcon} size={20} />
                 Visit Website
@@ -179,9 +179,9 @@ export default function CompanyPage() {
               <p className="text-blue-100 text-sm">{company.jobs.length} active jobs</p>
             </div>
           </div>
-          
+
           {user?.role === "recruiter" && (
-            <Button 
+            <Button
               onClick={openPostJobModal}
               className="bg-gray-900 border-none text-white hover:bg-gray-800 gap-2 h-11 px-6 rounded-xl font-bold transition-all hover:translate-y-[-2px] active:translate-y-0"
             >
@@ -195,9 +195,9 @@ export default function CompanyPage() {
           {company.jobs.length > 0 ? (
             <div className="flex flex-col gap-4">
               {company.jobs.map((job) => (
-                <JobListItem 
-                  key={job.job_id} 
-                  job={job} 
+                <JobListItem
+                  key={job.job_id}
+                  job={job}
                   onEdit={openEditJobModal}
                 />
               ))}
@@ -214,7 +214,7 @@ export default function CompanyPage() {
         </CardContent>
       </Card>
 
-      <JobModal 
+      <JobModal
         isOpen={isJobModalOpen}
         onClose={() => setIsJobModalOpen(false)}
         onSave={handleSaveJob}

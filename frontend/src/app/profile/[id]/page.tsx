@@ -70,8 +70,8 @@ export default function RecruiterProfilePage() {
   }
 
   return (
-    <div className="px-4 py-8 space-y-8 animate-in fade-in duration-500 max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="px-4 py-8 space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
+      <div className="bg-white dark:bg-slate-950 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <ProfileHeader 
           user={profileUser}
           isReadOnly={true}

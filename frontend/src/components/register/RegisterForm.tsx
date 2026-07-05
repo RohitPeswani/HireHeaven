@@ -3,18 +3,18 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { 
-  registerSchema, 
-  RegisterFormValues 
+import {
+  registerSchema,
+  RegisterFormValues
 } from "@/lib/schemas/registerSchema";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { 
-  UserIcon, 
-  Mail01Icon, 
-  LockIcon, 
-  CallIcon, 
-  File01Icon, 
+import {
+  UserIcon,
+  Mail01Icon,
+  LockIcon,
+  CallIcon,
+  File01Icon,
   Note01Icon,
   ArrowRight01Icon,
   SparklesIcon
@@ -27,12 +27,12 @@ import { toast } from "react-toastify";
 import { RegisterResponse } from "@/types";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
 } from "@/components/ui/form";
 
 const API_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
@@ -56,7 +56,7 @@ const RegisterForm = () => {
 
   const {
     formState: { isSubmitting }
-} = form;
+  } = form;
 
   const watchRole = form.watch("role");
 
@@ -69,7 +69,7 @@ const RegisterForm = () => {
       formData.append("password", values.password);
       formData.append("phoneNumber", `+91 ${values.phoneNumber}`);
       formData.append("role", values.role);
-      
+
       if (values.role === "jobseeker") {
         if (values.resume) {
           formData.append("file", values.resume);
@@ -109,10 +109,10 @@ const RegisterForm = () => {
     } catch (err: any) {
       const errorMsg = "Unable to connect to the server";
       toast.error(errorMsg);
-    } 
+    }
   };
 
-  console.log("isSubmitting",isSubmitting);
+  console.log("isSubmitting", isSubmitting);
 
   return (
     <Form {...form}>
@@ -171,7 +171,7 @@ const RegisterForm = () => {
                   name="bio"
                   render={({ field }: { field: any }) => (
                     <FormItem className="space-y-1.5">
-                      <FormLabel className="text-sm font-semibold text-gray-700">Bio</FormLabel>
+                      <FormLabel className="text-sm font-semibold text-gray-700 dark:text-slate-300">Bio</FormLabel>
                       <FormControl>
                         <div className="relative group">
                           <div className="absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-600 transition-colors">
@@ -180,7 +180,7 @@ const RegisterForm = () => {
                           <Textarea
                             {...field}
                             placeholder="Tell us about yourself..."
-                            className="pl-10 min-h-[100px] rounded-lg border-gray-200 bg-white focus-visible:ring-blue-600 transition-all resize-none"
+                            className="pl-10 min-h-[100px] rounded-lg border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 dark:text-white focus-visible:ring-blue-600 transition-all resize-none"
                           />
                         </div>
                       </FormControl>
@@ -191,18 +191,18 @@ const RegisterForm = () => {
               </>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full h-12 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-lg font-semibold group flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            <Button
+              type="submit"
+              className="w-full h-12 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-lg font-semibold group flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-                <span>Registering...</span>
-                  
-                  </>
-                
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                  <span>Registering...</span>
+
+                </>
+
               ) : (
                 <>
                   <span>Register</span>

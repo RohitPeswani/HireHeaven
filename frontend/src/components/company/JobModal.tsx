@@ -135,7 +135,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-6">
         <DialogHeader className="border-b pb-4">
-          <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-300 flex items-center gap-2">
              <HugeiconsIcon 
                icon={isEditMode ? Edit01Icon : Add01Icon} 
                size={24} 
@@ -143,7 +143,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
              />
              {isEditMode ? "Update Job" : "Post a new Job"}
           </DialogTitle>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 text-sm dark:text-gray-400">
             {isEditMode ? `Updating job for ${companyName}` : `Fill in the details to hire for ${companyName}`}
           </p>
         </DialogHeader>
@@ -157,7 +157,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                    <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                       <HugeiconsIcon icon={Briefcase01Icon} size={18} />
                       Job Title
                     </FormLabel>
@@ -165,7 +165,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                       <Input 
                         placeholder="e.g. Senior Frontend Engineer" 
                         {...field} 
-                        className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900" 
+                        className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300" 
                       />
                     </FormControl>
                     <FormMessage />
@@ -179,7 +179,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                    <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                       <HugeiconsIcon icon={Note01Icon} size={18} />
                       Description
                     </FormLabel>
@@ -187,7 +187,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                       <Textarea 
                         placeholder="Describe the responsibilities and requirements..." 
                         {...field} 
-                        className="min-h-[120px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 resize-none" 
+                        className="min-h-[120px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 resize-none dark:text-gray-300" 
                       />
                     </FormControl>
                     <FormMessage />
@@ -202,7 +202,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                   name="role"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                         <HugeiconsIcon icon={UserCircleIcon} size={18} />
                         Role/Department
                       </FormLabel>
@@ -210,7 +210,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                         <Input 
                           placeholder="e.g. Engineering" 
                           {...field} 
-                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900" 
+                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -224,7 +224,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                   name="salary"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                       <HugeiconsIcon icon={CurrencyIcon} size={16} />
                       Salary
                     </FormLabel>
@@ -236,7 +236,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                           onChange={(e) => field.onChange(e.target.valueAsNumber)}
                           placeholder="e.g. $120k - $150k" 
                         
-                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900" 
+                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -252,7 +252,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                   name="openings"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                         <HugeiconsIcon icon={UserGroupIcon} size={18} />
                         Openings
                       </FormLabel>
@@ -261,7 +261,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                           type="number"
                           placeholder="1" 
                           {...field} 
-                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900" 
+                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -275,7 +275,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                         <HugeiconsIcon icon={Location01Icon} size={18} />
                         Location
                       </FormLabel>
@@ -283,7 +283,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                         <Input 
                           placeholder="e.g. San Francisco, CA" 
                           {...field} 
-                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900" 
+                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -299,13 +299,13 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                   name="job_type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                         <HugeiconsIcon icon={Clock01Icon} size={18} />
                         Job Type
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900">
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300">
                             <SelectValue placeholder="Select job type" />
                           </SelectTrigger>
                         </FormControl>
@@ -327,13 +327,13 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                   name="work_location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                         <HugeiconsIcon icon={Home01Icon} size={18} />
                         Work Location
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900">
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300">
                             <SelectValue placeholder="Select work location" />
                           </SelectTrigger>
                         </FormControl>
@@ -356,7 +356,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                   name="is_active"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1">
+                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
                         <HugeiconsIcon 
                           icon={field.value ? Tick01Icon : Cancel01Icon} 
                           size={18} 
@@ -369,7 +369,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                         value={field.value ? "Active" : "Inactive"}
                       >
                         <FormControl>
-                          <SelectTrigger className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900">
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300">
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                         </FormControl>
