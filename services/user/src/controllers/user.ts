@@ -334,7 +334,7 @@ export const getAllApplications = tryCatch(async(req : AuthenticatedRequest, res
 
     const applicant_id = user.user_id;
 
-    const applications = await sql`SELECT a.* , j.title AS job_title, j.salary AS job_salary, j.location as job_location, c.name as company_name FROM applications a JOIN jobs j ON a.job_id = j.job_id JOIN companies c ON j.company_id = c.company_id WHERE applicant_id = ${applicant_id}`;
+    const applications = await sql`SELECT a.* , j.title AS job_title, j.salary AS job_salary, j.city as job_city, j.state as job_state, c.name as company_name FROM applications a JOIN jobs j ON a.job_id = j.job_id JOIN companies c ON j.company_id = c.company_id WHERE applicant_id = ${applicant_id}`;
 
     return res.status(200).json({
         success : true,

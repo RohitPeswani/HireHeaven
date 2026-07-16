@@ -17,11 +17,14 @@ import {
   Briefcase01Icon,
   ArrowLeft01Icon,
   Tick01Icon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  Cancel01Icon,
+  HelpCircleIcon,
+  UserCircleIcon
 } from "@hugeicons/core-free-icons";
 import { toast } from "react-toastify";
 import { addApplication } from "@/store/applicationsSlice";
-import { convertServerPatchToFullTree } from "next/dist/client/components/segment-cache/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const JOB_API_BASE = process.env.NEXT_PUBLIC_JOB_SERVICE_URL || "http://localhost:5003";
 const USER_API_BASE = process.env.NEXT_PUBLIC_USER_SERVICE_URL || "http://localhost:5002";
@@ -135,12 +138,12 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case "Hired":
-        return "bg-green-50 text-green-700 hover:bg-green-50 border border-green-200";
+        return "bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/30";
       case "Rejected":
-        return "bg-red-50 text-red-700 hover:bg-red-50 border border-red-200";
+        return "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/30";
       case "Submitted":
       default:
-        return "bg-yellow-50 text-yellow-700 hover:bg-yellow-50 border border-yellow-200";
+        return "bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-900/30";
     }
   };
 
@@ -179,7 +182,7 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           ...data.application,
           job_title: job?.title || "",
           job_salary: String(job?.salary || ""),
-          job_location: job?.location || "",
+          job_location: `${job?.city}, ${job?.state}` || "",
           company_name: job?.company_name || "",
         };
         dispatch(addApplication(newApp));
@@ -265,7 +268,7 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
           <div>
             <p className="text-xs font-bold text-gray-400 dark:text-slate-550 uppercase tracking-wider">Location</p>
-            <p className="font-bold text-gray-900 dark:text-white leading-tight">{job.location}</p>
+            <p className="font-bold text-gray-900 dark:text-white leading-tight">{job.city},{job.state}</p>
           </div>
         </div>
 
@@ -322,19 +325,24 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Recruiter Applications Section */}
+      </div>      {/* Recruiter Applications Section */}
       {isOwnJob && (
-        <div className="max-w-5xl mx-auto mt-12 px-4 md:px-0">
-          <div className="flex items-center justify-between border-b border-gray-150 dark:border-slate-800 pb-4 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">All Applications</h2>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-500 dark:text-slate-400">Filter:</span>
+        <div className="max-w-5xl mx-auto mt-12 px-4 md:px-0 space-y-6">
+          
+          {/* Header Card */}
+          <div className="bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-3xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Applicants Manager</h2>
+              <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 mt-1">
+                Review candidate profiles, resumes, and update applicant statuses.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Filter By Status:</span>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-sm bg-white dark:bg-slate-950 font-medium text-gray-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-200 dark:border-slate-850 rounded-xl px-3 py-2 text-xs bg-white dark:bg-slate-950 font-bold text-gray-700 dark:text-slate-350 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               >
                 <option value="All Status">All Status</option>
                 <option value="Submitted">Submitted</option>
@@ -344,65 +352,177 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
             </div>
           </div>
 
-          {applicationsLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader size={36} text="Loading applications..." />
-            </div>
-          ) : filteredApplications.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 pb-20">
-              {filteredApplications.map((app) => (
-                <div key={app.application_id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${getStatusBadgeClass(app.status)}`}>
-                      {app.status}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-xs font-bold text-blue-600 dark:text-blue-450">
-                    <a
-                      href={app.resume}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:underline"
-                    >
-                      View Resume
-                    </a>
-                    <Link
-                      href={`/profile/${app.applicant_id}`}
-                      className="hover:underline"
-                    >
-                      View Profile
-                    </Link>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <select
-                      value={selectedStatus[app.application_id] || ""}
-                      onChange={(e) => handleStatusSelect(app.application_id, e.target.value)}
-                      className="flex-1 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 bg-white dark:bg-slate-950 text-sm text-gray-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Update status</option>
-                      <option value="Submitted">Submitted</option>
-                      <option value="Hired">Hired</option>
-                      <option value="Rejected">Rejected</option>
-                    </select>
-
-                    <Button
-                      onClick={() => handleUpdateStatus(app.application_id)}
-                      disabled={updatingStatus[app.application_id] || !selectedStatus[app.application_id]}
-                      className="bg-gray-900 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 hover:bg-gray-800 text-white font-bold px-6 py-4 rounded-xl text-sm min-w-[90px]"
-                    >
-                      {updatingStatus[app.application_id] ? <Loader size={16} className="text-white dark:text-black" /> : "Update"}
-                    </Button>
-                  </div>
+          {/* Statistics + Table Card */}
+          <div className="bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-6">
+            
+            {/* Statistics Summary Cards Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gray-50/50 dark:bg-slate-950/40 border border-gray-100 dark:border-slate-850/80 p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total Applied</p>
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white">{jobApplications.length}</h3>
                 </div>
-              ))}
+                <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
+                  <HugeiconsIcon icon={UserGroupIcon} size={20} />
+                </div>
+              </div>
+
+              <div className="bg-gray-50/50 dark:bg-slate-950/40 border border-gray-100 dark:border-slate-850/80 p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-1">Submitted</p>
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                    {jobApplications.filter((a) => a.status === "Submitted").length}
+                  </h3>
+                </div>
+                <div className="w-10 h-10 bg-yellow-50 dark:bg-yellow-950/20 text-yellow-600 dark:text-yellow-400 rounded-xl flex items-center justify-center">
+                  <HugeiconsIcon icon={InformationCircleIcon} size={20} />
+                </div>
+              </div>
+
+              <div className="bg-gray-50/50 dark:bg-slate-950/40 border border-gray-100 dark:border-slate-850/80 p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-1">Hired</p>
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                    {jobApplications.filter((a) => a.status === "Hired").length}
+                  </h3>
+                </div>
+                <div className="w-10 h-10 bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center">
+                  <HugeiconsIcon icon={Tick01Icon} size={20} />
+                </div>
+              </div>
+
+              <div className="bg-gray-50/50 dark:bg-slate-950/40 border border-gray-100 dark:border-slate-850/80 p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-1">Rejected</p>
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                    {jobApplications.filter((a) => a.status === "Rejected").length}
+                  </h3>
+                </div>
+                <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center">
+                  <HugeiconsIcon icon={Cancel01Icon} size={20} />
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-12 text-gray-500 dark:text-slate-400 font-semibold bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm">
-              No application Yet.
+
+            {/* Candidates Table Card Container */}
+            <div className="border border-gray-100 dark:border-slate-800/80 rounded-2xl overflow-hidden bg-white dark:bg-slate-900">
+              <div className="w-full overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[900px]">
+                  <thead>
+                    <tr className="bg-gray-50/40 dark:bg-slate-950/40 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider border-b border-gray-100 dark:border-slate-800">
+                      <th className="px-6 py-4">Applicant</th>
+                      <th className="px-6 py-4">Email</th>
+                      <th className="px-6 py-4">Phone Number</th>
+                      <th className="px-6 py-4">Resume</th>
+                      <th className="px-6 py-4">Applied On</th>
+                      <th className="px-6 py-4">Current Status</th>
+                      <th className="px-6 py-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 dark:divide-slate-800/30">
+                    {applicationsLoading ? (
+                      <tr>
+                        <td colSpan={7} className="py-12 text-center">
+                          <Loader size={36} text="Loading applications..." />
+                        </td>
+                      </tr>
+                    ) : filteredApplications.length > 0 ? (
+                      filteredApplications.map((app) => (
+                        <tr key={app.application_id} className="hover:bg-gray-50/20 dark:hover:bg-slate-800/10 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-9 w-9 border-2 border-white dark:border-slate-850 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl overflow-hidden flex items-center justify-center">
+                                <AvatarFallback className="font-bold text-xs uppercase select-none">
+                                  {app.applicant_name ? app.applicant_name[0] : "A"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs font-bold text-gray-900 dark:text-white">
+                                {app.applicant_name || "Applicant"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-slate-400 font-semibold">
+                            {app.applicant_email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-slate-400 font-semibold">
+                            {app.phone_number || "—"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <a
+                              href={app.resume}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline cursor-pointer"
+                            >
+                              View Resume
+                            </a>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-slate-400 font-semibold">
+                            {new Date(app.applied_at).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusBadgeClass(app.status)}`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-4">
+                              <Link
+                                href={`/profile/${app.applicant_id}`}
+                                className="text-xs font-bold text-gray-550 dark:text-slate-355 hover:text-blue-600 dark:hover:text-blue-450 hover:underline"
+                              >
+                                View Profile
+                              </Link>
+                              
+                              <div className="flex items-center gap-2">
+                                <select
+                                  value={selectedStatus[app.application_id] || ""}
+                                  onChange={(e) => handleStatusSelect(app.application_id, e.target.value)}
+                                  className="border border-gray-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-xs bg-white dark:bg-slate-950 font-bold text-gray-700 dark:text-slate-350 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                >
+                                  <option value="">Update status</option>
+                                  <option value="Submitted">Submitted</option>
+                                  <option value="Hired">Hired</option>
+                                  <option value="Rejected">Rejected</option>
+                                </select>
+                                {selectedStatus[app.application_id] && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleUpdateStatus(app.application_id)}
+                                    disabled={updatingStatus[app.application_id]}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold h-8 px-3 rounded-xl cursor-pointer shadow-xs transition-all shrink-0"
+                                  >
+                                    {updatingStatus[app.application_id] ? <Loader size={12} className="text-white" /> : "Save"}
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr className="bg-white dark:bg-slate-900">
+                        <td colSpan={7} className="py-16 text-center">
+                          <div className="flex flex-col items-center justify-center space-y-4">
+                            <div className="w-16 h-16 bg-gray-50 dark:bg-slate-950/60 rounded-2xl flex items-center justify-center text-gray-300 dark:text-slate-700">
+                              <HugeiconsIcon icon={HelpCircleIcon} size={32} />
+                            </div>
+                            <div className="space-y-1">
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-white">No applicants yet</h3>
+                              <p className="text-xs text-gray-550 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
+                                Candidates who apply to this job listing will appear here. Try adjusting your status filter.
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
+
+          </div>
         </div>
       )}
     </div>

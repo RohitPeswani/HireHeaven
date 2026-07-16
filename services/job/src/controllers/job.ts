@@ -135,11 +135,11 @@ export const createJob = tryCatch(async(req : AuthenticatedRequest, res, next) =
         return;
     }
 
-    const {title, description, salary, location, job_type, openings, role, work_location,company_id} = req.body;
+    const {title, description, salary, city, state, job_type, openings, role, work_location,company_id} = req.body;
 
     console.log(title);
 
-    if(!title || !description || !salary || !location || !openings || !role){
+    if(!title || !description || !salary || !city || !state || !openings || !role){
         next(new ErrorHandler(400, "All fields are required"));
         return;
     }
@@ -151,7 +151,7 @@ export const createJob = tryCatch(async(req : AuthenticatedRequest, res, next) =
         return;
     }
 
-    const [job] = await sql`INSERT INTO jobs (title, description, salary, location, job_type, openings, role, work_location, company_id, posted_by_recruiter_id) VALUES (${title}, ${description}, ${salary}, ${location}, ${job_type}, ${openings}, ${role}, ${work_location}, ${company_id}, ${user.user_id}) RETURNING *`;
+    const [job] = await sql`INSERT INTO jobs (title, description, salary, city, state, job_type, openings, role, work_location, company_id, posted_by_recruiter_id) VALUES (${title}, ${description}, ${salary}, ${city}, ${state}, ${job_type}, ${openings}, ${role}, ${work_location}, ${company_id}, ${user.user_id}) RETURNING *`;
 
     const [companyWithJob] = await sql`SELECT c.*, COALESCE(
     (
@@ -179,7 +179,7 @@ export const updateJob = tryCatch(async(req : AuthenticatedRequest, res, next) =
     }
 
     const {jobId} = req.params;
-    const {title, description, salary, location, job_type, openings, role, work_location, is_active} = req.body;
+    const {title, description, salary, city, state, job_type, openings, role, work_location, is_active} = req.body;
 
     const [job] = await sql`SELECT job_id FROM jobs WHERE job_id = ${jobId} AND posted_by_recruiter_id = ${user.user_id}`;
 
@@ -188,7 +188,7 @@ export const updateJob = tryCatch(async(req : AuthenticatedRequest, res, next) =
         return;
     }
 
-    const [updatedJob] = await sql`UPDATE jobs SET title = COALESCE(${title}, title), description = COALESCE(${description}, description), salary = COALESCE(${salary}, salary), location = COALESCE(${location}, location), job_type = COALESCE(${job_type}, job_type), openings = COALESCE(${openings}, openings), role = COALESCE(${role}, role), work_location = COALESCE(${work_location}, work_location), is_active = COALESCE(${is_active}, is_active) WHERE job_id = ${jobId} RETURNING *`;
+    const [updatedJob] = await sql`UPDATE jobs SET title = COALESCE(${title}, title), description = COALESCE(${description}, description), salary = COALESCE(${salary}, salary), city = COALESCE(${city}, city), state = COALESCE(${state}, state), job_type = COALESCE(${job_type}, job_type), openings = COALESCE(${openings}, openings), role = COALESCE(${role}, role), work_location = COALESCE(${work_location}, work_location), is_active = COALESCE(${is_active}, is_active) WHERE job_id = ${jobId} RETURNING *`;
 
     const [companyWithJob] = await sql`SELECT c.*, COALESCE(
     (
@@ -245,34 +245,156 @@ export const getCompanyDetails = tryCatch(async(req : AuthenticatedRequest, res,
 
 export const getAllActiveJobs = tryCatch(async(req, res, next) => {
 
-    const {title, location} = req.query;
+    const {
+        title,
+        city,
+        state,
+        company,
+        role,
+        job_type,
+        work_location,
+        min_salary,
+        max_salary,
+        sort,
+        date_posted,
+        page,
+        limit
+    } = req.query;
 
-    let queryString = `SELECT j.job_id, j.title, j.description, j.salary, j.location, j.job_type, j.openings, j.role, j.work_location, j.created_at, c.company_id, c.name as company_name, c.logo as company_logo FROM jobs j JOIN companies c ON j.company_id = c.company_id WHERE j.is_active = true`;
-
-    let values = [];
+    const conditions = ["j.is_active = true"];
+    const values: any[] = [];
     let paramIndex = 1;
 
-    if(title){
-        queryString += ` AND j.title ILIKE $${paramIndex}`;
-        values.push(`%${title.toString().toLowerCase()}%`);
+    if (title) {
+        conditions.push(`j.title ILIKE $${paramIndex}`);
+        values.push(`%${title}%`);
         paramIndex++;
     }
 
-    if(location){
-        queryString += ` AND j.location ILIKE $${paramIndex}`;
-        values.push(`%${location.toString().toLowerCase()}%`);
+    if (city) {
+        conditions.push(`j.city ILIKE $${paramIndex}`);
+        values.push(`%${city}%`);
         paramIndex++;
     }
 
-    queryString += ` ORDER BY j.created_at DESC`;
+    if (state) {
+        conditions.push(`j.state ILIKE $${paramIndex}`);
+        values.push(`%${state}%`);
+        paramIndex++;
+    }
 
+    if (company) {
+        conditions.push(`c.name ILIKE $${paramIndex}`);
+        values.push(`%${company}%`);
+        paramIndex++;
+    }
 
-    const jobs = await sql.query(queryString, values);
+    if (role) {
+        conditions.push(`j.role ILIKE $${paramIndex}`);
+        values.push(`%${role}%`);
+        paramIndex++;
+    }
 
+    if (job_type) {
+        conditions.push(`j.job_type = $${paramIndex}`);
+        values.push(job_type);
+        paramIndex++;
+    }
+
+    if (work_location) {
+        conditions.push(`j.work_location = $${paramIndex}`);
+        values.push(work_location);
+        paramIndex++;
+    }
+
+    if (min_salary && !isNaN(Number(min_salary))) {
+        conditions.push(`j.salary >= $${paramIndex}`);
+        values.push(Number(min_salary));
+        paramIndex++;
+    }
+
+    if (max_salary && !isNaN(Number(max_salary))) {
+        conditions.push(`j.salary <= $${paramIndex}`);
+        values.push(Number(max_salary));
+        paramIndex++;
+    }
+
+    // Date Filter Logic using Lookup Map
+    const dateMap: Record<string, string> = {
+        "24h": "24 hours",
+        "3d": "3 days",
+        "7d": "7 days",
+        "30d": "30 days"
+    };
+
+    if (date_posted && dateMap[date_posted as string]) {
+        conditions.push(`j.created_at >= NOW() - INTERVAL '${dateMap[date_posted as string]}'`);
+    }
+
+    // Determine sorting using Lookup Map
+    const sortMap: Record<string, string> = {
+        newest: "ORDER BY j.created_at DESC",
+        oldest: "ORDER BY j.created_at ASC",
+        salary_high: "ORDER BY j.salary DESC NULLS LAST, j.created_at DESC",
+        salary_low: "ORDER BY j.salary ASC NULLS LAST, j.created_at DESC",
+        title_asc: "ORDER BY j.title ASC, j.created_at DESC"
+    };
+
+    const orderClause = sort && sortMap[sort as string] ? sortMap[sort as string] : "ORDER BY j.created_at DESC";
+
+    // Pagination calculations and validation
+    const pageNum = page ? parseInt(page as string, 10) : 1;
+    const limitNum = limit ? parseInt(limit as string, 10) : 10;
+    const parsedPage = isNaN(pageNum) || pageNum < 1 ? 1 : pageNum;
+    
+    let parsedLimit = isNaN(limitNum) ? 10 : limitNum;
+    if (parsedLimit < 1) {
+        parsedLimit = 1;
+    } else if (parsedLimit > 50) {
+        parsedLimit = 50;
+    }
+
+    const offset = (parsedPage - 1) * parsedLimit;
+
+    // Count query to get total jobs matching criteria
+    const countQueryString = `
+        SELECT COUNT(*) 
+        FROM jobs j 
+        JOIN companies c ON j.company_id = c.company_id 
+        WHERE ${conditions.join(" AND ")}
+    `;
+    const countResult = await sql.query(countQueryString, values);
+    const totalJobs = parseInt(countResult[0]?.count || "0", 10);
+
+    // Main jobs query with pagination
+    const queryString = `
+        SELECT j.job_id, j.title, j.description, j.salary, j.city,j.state, j.job_type, j.openings, j.role, j.work_location, j.created_at, j.is_active,
+               c.company_id, c.name as company_name, c.logo as company_logo 
+        FROM jobs j 
+        JOIN companies c ON j.company_id = c.company_id 
+        WHERE ${conditions.join(" AND ")}
+        ${orderClause}
+        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    const jobsValues = [...values, parsedLimit, offset];
+    const jobs = await sql.query(queryString, jobsValues);
+
+    const totalPages = Math.ceil(totalJobs / parsedLimit);
+    const hasNextPage = parsedPage < totalPages;
+    const hasPreviousPage = parsedPage > 1;
 
     res.status(200).json({
         success: true,
-        jobs
+        jobs,
+        pagination: {
+            totalJobs,
+            currentPage: parsedPage,
+            totalPages,
+            limit: parsedLimit,
+            hasNextPage,
+            hasPreviousPage
+        }
     });
 })
 
@@ -319,7 +441,7 @@ export const getApplicationsForJob = tryCatch(async(req: AuthenticatedRequest, r
         return;
     }
 
-    const applications = await sql`SELECT * FROM applications WHERE job_id = ${jobId} ORDER BY subscribed DESC, applied_at ASC`;
+    const applications = await sql`SELECT a.*, u.name as applicant_name, u.email as applicant_email FROM applications as a join users as u on a.applicant_id = u.user_id WHERE job_id = ${jobId} ORDER BY subscribed DESC, applied_at ASC`;
 
     res.status(200).json({
         success: true,

@@ -144,6 +144,8 @@ export interface Application {
   job_salary: string;
   job_location: string;
   company_name: string;
+  applicant_name?: string;
+  phone_number?: string;
 }
 
 export interface ApplicationResponse {
@@ -202,7 +204,8 @@ export interface Job {
   title: string;
   description: string;
   salary: number;
-  location: string;
+  city : string,
+  state : string,
   job_type: "Full-time" | "Part-time" | "Contract" | "Internship";
   work_location: "On-site" | "Remote" | "Hybrid";
   openings: number;

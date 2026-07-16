@@ -26,7 +26,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false }) => {
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="space-y-1 pr-4">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate max-w-[200px]">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate max-w-[150px]">
               {job.title}
             </h3>
             <div className="flex items-center gap-2 text-gray-500 dark:text-slate-400 font-medium">
@@ -54,7 +54,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isApplied = false }) => {
         <div className="space-y-3 mb-6">
           <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300 bg-blue-50/50 dark:bg-blue-950/20 self-start px-3 py-1.5 rounded-lg w-fit">
             <HugeiconsIcon icon={Location01Icon} size={18} className="text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-semibold">{job.location}</span>
+            <span className="text-sm font-semibold">{job.city},{job.state}</span>
           </div>
           <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300 bg-green-50/50 dark:bg-green-950/20 self-start px-3 py-1.5 rounded-lg w-fit">
             <HugeiconsIcon icon={CurrencyIcon} size={18} className="text-green-600 dark:text-green-400" />

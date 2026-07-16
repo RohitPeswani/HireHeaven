@@ -45,6 +45,7 @@ import {
   Cancel01Icon
 } from "@hugeicons/core-free-icons";
 import { Job } from "@/types";
+import { LocationCombobox } from "./LocationCombobox";
 
 const jobSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -55,7 +56,8 @@ const jobSchema = z.object({
   z.number().positive("Salary is required")
 ),
   openings: z.preprocess((val) => Number(val), z.number().min(1, "At least 1 opening is required")),
-  location: z.string().min(2, "Location is required"),
+  state: z.string().min(1, "State is required"),
+  city: z.string().min(1, "City is required"),
   job_type: z.enum(["Full-time", "Part-time", "Contract", "Internship"]),
   work_location: z.enum(["On-site", "Remote", "Hybrid"]),
   is_active: z.boolean().default(true),
@@ -83,7 +85,8 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
       role: "",
       salary: 0,
       openings: 1,
-      location: "",
+      state: "",
+      city: "",
       job_type: "Full-time",
       work_location: "On-site",
       is_active: true,
@@ -98,7 +101,8 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
         role: job.role,
         salary: job.salary,
         openings: job.openings,
-        location: job.location,
+        state: job.state || "",
+        city: job.city || "",
         job_type: job.job_type,
         work_location: job.work_location,
         is_active: job.is_active,
@@ -110,7 +114,8 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
         role: "",
         salary: 0,
         openings: 1,
-        location: "",
+        state: "",
+        city: "",
         job_type: "Full-time",
         work_location: "On-site",
         is_active: true,
@@ -268,28 +273,10 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, companyNam
                     </FormItem>
                   )}
                 />
+              </div>
 
-                {/* Location */}
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-gray-700 font-semibold mb-1 dark:text-gray-300">
-                        <HugeiconsIcon icon={Location01Icon} size={18} />
-                        Location
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="e.g. San Francisco, CA" 
-                          {...field} 
-                          className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300" 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="grid sm:grid-cols-2 gap-6">
+                <LocationCombobox form={form} />
               </div>
 
               <div className="grid sm:grid-cols-2 gap-6">
