@@ -247,13 +247,12 @@ const JobsListingContent = () => {
           </div>
 
           <Sheet>
-            <SheetTrigger>
-              <Button
+            <SheetTrigger render={<Button
                 className="lg:hidden h-12 px-6 bg-gray-900 dark:bg-white text-white dark:text-slate-900 hover:bg-gray-800 dark:hover:bg-slate-100 rounded-2xl font-bold flex items-center gap-2 group transition-all shrink-0 cursor-pointer"
               >
                 <HugeiconsIcon icon={FilterIcon} size={20} className="group-hover:rotate-12 transition-transform" />
                 Filters
-              </Button>
+              </Button>}>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0 bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 overflow-y-auto">
               <div className="p-6">

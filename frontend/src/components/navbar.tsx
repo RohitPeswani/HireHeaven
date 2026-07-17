@@ -63,7 +63,6 @@ const NAV_ITEMS: NavItem[] = [
 
 const MOBILE_EXTRA_ITEMS: NavItem[] = [
   { label: "Profile", href: "/profile", icon: UserCircleIcon },
-  { label: "Settings", href: "/settings", icon: Settings02Icon },
   { label: "logout", href: "", icon: Logout01Icon },
 ];
 
@@ -219,7 +218,7 @@ export default function Navbar() {
                   />
                   <PopoverContent
                     align="end"
-                    className="w-56 p-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 shadow-xl rounded-xl"
+                    className="w-56 p-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 shadow-xl rounded-xl gap-2"
                   >
                     {/* User info header */}
                     <div className="px-3 py-2.5 border-b border-gray-100 dark:border-slate-800 mb-1">
@@ -234,13 +233,13 @@ export default function Navbar() {
                         <HugeiconsIcon icon={UserIcon} size={16} />
                         Profile
                       </Link>
-                      <Link
+                      {/* <Link
                         href="/settings"
                         className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                       >
                         <HugeiconsIcon icon={Settings02Icon} size={16} />
                         Settings
-                      </Link>
+                      </Link> */}
                       <div className="h-px bg-gray-100 dark:bg-slate-800 mx-1 my-1" />
                       <button
                         onClick={handleLogout}

@@ -68,8 +68,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <Button
+      <PopoverTrigger render={<Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
@@ -89,7 +88,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
             icon={UnfoldMoreIcon}
             className="ml-2 h-4 w-4 shrink-0 opacity-50 text-gray-500"
           />
-        </Button>
+        </Button>}>
+        
       </PopoverTrigger>
       <PopoverContent className="w-[--anchor-width] p-0 bg-white dark:bg-slate-900 shadow-md ring-1 ring-foreground/10 border border-gray-100 dark:border-slate-800 rounded-lg overflow-hidden isolate z-50">
         <div className="flex items-center border-b border-gray-100 dark:border-slate-800 px-3 h-10 gap-2">

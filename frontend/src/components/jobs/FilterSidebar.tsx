@@ -126,7 +126,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         <label className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
           Sort By
         </label>
-        <Select onValueChange={onSortByChange} value={sortBy || "newest"}>
+        <Select onValueChange={(val) => onSortByChange(val ?? "newest")} value={sortBy || "newest"}>
           <SelectTrigger className="h-11 w-full border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300 dark:bg-slate-950">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -148,9 +148,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             State
           </label>
           <Select onValueChange={(val) => {
-            onStateChange(val);
+            onStateChange(val ?? "");
             onCityChange(""); // Reset city when state changes
-          }} value={state || undefined}>
+          }} value={state || ""}>
             <SelectTrigger className="h-11 w-full border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all text-gray-900 dark:text-gray-300 dark:bg-slate-950">
               <SelectValue placeholder="Select State" />
             </SelectTrigger>
