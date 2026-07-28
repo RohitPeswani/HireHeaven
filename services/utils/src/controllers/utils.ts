@@ -7,6 +7,8 @@ import { tryCatch } from "../utils/tryCatch.js";
 import { ErrorHandler } from "../utils/errorHandler.js";
 import dotenv from 'dotenv';
 import { getBuffer } from "../utils/buffer.js";
+import { CareerGuidanceService } from "../services/careerGuidance.service.js";
+import { ResumeAnalysisService } from "../services/resumeAnalysis.service.js";
 
 dotenv.config();
 
@@ -141,108 +143,73 @@ const parseJson = (text: string) => {
     }
 };
 export const carrerGuidance = tryCatch(async(req, res, next) => {
-   
-        const {skills} = req.body;
+    const { skills } = req.body;
 
-        if(!skills){
-            return res.status(400).json({
-                success: false,
-                message: "skills are required"
-            });
-        }
+    if (!skills) {
+        return res.status(400).json({
+            success: false,
+            message: "skills are required"
+        });
+    }
 
-
-       
-        const response = await ai.models.generateContent({
-            model : "gemini-2.5-flash",
-            contents : guidancePrompt(skills)
-        })
-
-        let jsonResponse;
-
-        const rawText = response.text?.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        if(!rawText){
-            return res.status(500).json({
-                success: false,
-                message: "Failed to generate career guidance"
-            });
-        }
-
-        
-            jsonResponse = parseJson(rawText);
-
-            if(!jsonResponse){
-               next(new ErrorHandler(500, "Failed to parse career guidance"));
-               return;
-            }
-        
+    try {
+        const jsonResponse = await CareerGuidanceService.generateGuidance(
+            Array.isArray(skills) ? skills : [skills]
+        );
 
         return res.status(200).json({
             success: true,
             data: jsonResponse
         });
-
-    
+    } catch (error: any) {
+        console.error("LangChain Career Guidance Error:", error);
+        
+      
+        const message = error instanceof Error ? error.message : "Failed to generate career guidance";
+        return next(new ErrorHandler(500, `Failed to generate career guidance: ${message}`));
+    }
 });
 
 export const analyzeResume = tryCatch(async(req, res, next) => {
-   
-        const file = req.file;
+    const file = req.file;
 
-        if(!file){
-            return res.status(400).json({
-                success: false,
-                message: "resume is required"
-            });
-        }
+    if (!file) {
+        return res.status(400).json({
+            success: false,
+            message: "resume is required"
+        });
+    }
 
+    // Validate file type
+    if (file.mimetype !== "application/pdf") {
+        return res.status(400).json({
+            success: false,
+            message: "Only PDF resumes are supported"
+        });
+    }
 
+    // Validate file size (e.g. limit to 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+        return res.status(400).json({
+            success: false,
+            message: "Resume file size exceeds the 5MB limit"
+        });
+    }
+
+    try {
         const buffer = getBuffer(file);
+        const pdfBase64 = buffer.replace("data:application/pdf;base64,", "");
 
-       
-        const response = await ai.models.generateContent({
-            model : "gemini-2.5-flash",
-            contents : [{
-                role : "user",
-                parts : [
-                    {
-                        text : resumePrompt()
-                    },
-                    {
-                        inlineData : {
-                            mimeType : "application/pdf",
-                            data : buffer.replace("data:application/pdf;base64,", "")
-                        }
-                    }
-                ]
-            }]
-        })
-
-        let jsonResponse;
-
-        const rawText = response.text?.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        if(!rawText){
-            return res.status(500).json({
-                success: false,
-                message: "Failed to generate resume analysis"
-            });
-        }
-
-        
-            jsonResponse = parseJson(rawText);
-
-            if(!jsonResponse){
-               next(new ErrorHandler(500, "Failed to parse resume analysis"));
-               return;
-            }
-        
+        const jsonResponse = await ResumeAnalysisService.analyze(pdfBase64);
 
         return res.status(200).json({
             success: true,
             data: jsonResponse
         });
-
-    
+    } catch (error: any) {
+        console.error("Resume Analysis Error:", error);
+        const message = error instanceof Error ? error.message : "Failed to analyze resume";
+        return next(new ErrorHandler(500, `Failed to analyze resume: ${message}`));
+    }
 });
