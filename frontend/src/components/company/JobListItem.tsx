@@ -54,7 +54,7 @@ const JobListItem: React.FC<JobListItemProps> = ({ job, onEdit }) => {
             </div>
             <div className="flex items-center gap-1.5">
               <HugeiconsIcon icon={Location01Icon} size={14} className="text-gray-400 dark:text-slate-550" />
-              <span>{job.location}</span>
+              <span>{job.state},{job.city}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <HugeiconsIcon icon={ComputerIcon} size={14} className="text-gray-400 dark:text-slate-550" />

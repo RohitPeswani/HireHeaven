@@ -1,11 +1,12 @@
 import express, { NextFunction, Request, Response } from "express";
 import dotenv from 'dotenv';
-dotenv.config();
 import {sql} from './utils/db.js';
 import authRoutes from './routes/auth.js';
 import { ErrorHandler } from "./utils/errorHandler.js";
 import { createClient } from 'redis';
 import cors from 'cors';
+
+dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 const app = express();
