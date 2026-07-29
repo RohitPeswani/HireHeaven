@@ -1,136 +1,213 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
+import React, { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ArrowUpRight01Icon,
   Search01Icon,
-  ArrowRight01Icon,
-  PlayIcon,
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 /**
- * Hero component for the HireHeaven landing page
+ * Hero component for the HireHeaven landing page.
+ * Implements a clean, centered layout with a natural language search input
+ * and AI-powered filter extraction.
  */
 export default function Hero() {
+  const router = useRouter();
+  const [queryText, setQueryText] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const examples = [
+    "Looking for remote React internships in Ahmedabad above 8 LPA",
+    "high paying React jobs in Mumbai",
+    "WFH full-time jobs in Pune between 8 and 12 LPA"
+  ];
+
+  const handleNormalSearch = () => {
+    if (!queryText.trim()) {
+      toast.info("Please enter a search query first.");
+      return;
+    }
+    router.push(`/jobs?title=${encodeURIComponent(queryText.trim())}`);
+  };
+
+  const handleAISearch = async () => {
+    if (!queryText.trim()) {
+      toast.info("Please describe your ideal job first.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_UTILS_SERVICE_URL || 'http://localhost:5001'}/api/utils/job-query-extract`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query: queryText.trim() })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.filters) {
+        const filters = data.filters;
+        
+        // Map min_salary (numeric INR) to LPA filter string
+        let salaryFilterStr = "";
+        if (filters.min_salary) {
+          const lpa = filters.min_salary / 100000;
+          if (lpa >= 20) salaryFilterStr = "20+ LPA";
+          else if (lpa >= 15) salaryFilterStr = "15–20 LPA";
+          else if (lpa >= 10) salaryFilterStr = "10–15 LPA";
+          else if (lpa >= 6) salaryFilterStr = "6–10 LPA";
+          else if (lpa >= 3) salaryFilterStr = "3–6 LPA";
+          else if (lpa > 0) salaryFilterStr = "0–3 LPA";
+        }
+
+        // Construct query parameters
+        const params = new URLSearchParams();
+        if (filters.title) params.append("title", filters.title);
+        else if (filters.role) params.append("title", filters.role);
+        
+        if (filters.state) params.append("state", filters.state);
+        if (filters.city) params.append("city", filters.city);
+        if (salaryFilterStr) params.append("salary", salaryFilterStr);
+        if (filters.job_type) params.append("job_type", filters.job_type);
+        if (filters.work_location) params.append("work_location", filters.work_location);
+
+        router.push(`/jobs?${params.toString()}`);
+        toast.success("AI filters extracted successfully!");
+      } else {
+        toast.error(data.message || "Failed to analyze your query. Try normal search.");
+      }
+    } catch (error: any) {
+      console.error("AI Search query extract error:", error);
+      toast.error("Unable to connect to AI analysis service.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <section className="relative overflow-hidden bg-white dark:bg-slate-950 pt-16 pb-20 lg:pt-24 lg:pb-32">
+    <section className="relative overflow-hidden bg-white dark:bg-slate-950 pt-20 pb-24 lg:pt-28 lg:pb-36">
       {/* Background glow blobs */}
-      <div className="absolute -top-32 -right-32 -z-10 h-96 w-96 rounded-full bg-blue-100/40 dark:bg-blue-950/20 blur-3xl" />
-      <div className="absolute -bottom-32 -left-32 -z-10 h-96 w-96 rounded-full bg-red-50/40 dark:bg-red-950/10 blur-3xl" />
+      <div className="absolute -top-32 -right-32 -z-10 h-[500px] w-[500px] rounded-full bg-blue-100/30 dark:bg-blue-950/10 blur-[128px]" />
+      <div className="absolute -bottom-32 -left-32 -z-10 h-[500px] w-[500px] rounded-full bg-red-50/30 dark:bg-red-950/5 blur-[128px]" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+        <div className="flex flex-col items-center text-center space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
+          
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 px-4 py-1.5 text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-400 transition-colors hover:bg-blue-100/50 dark:hover:bg-blue-950/30 shadow-sm">
+            <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} className="text-blue-600 dark:text-blue-400" />
+            <span>#1 AI-Powered Job Platform in India</span>
+          </div>
 
-          {/* Left Content Column */}
-          <div className="flex flex-col items-start space-y-8 animate-in fade-in slide-in-from-left-8 duration-700 ease-out">
+          {/* Main Heading */}
+          <div className="space-y-6 max-w-4xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
+              Find Your Dream Job at{" "}
+              <span className="block sm:inline">
+                <span className="text-blue-600">Hire</span>
+                <span className="text-red-500">Heaven</span>
+              </span>
+            </h1>
+            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-500 dark:text-slate-400 sm:text-xl md:text-2xl font-light">
+              Connect with top employers and discover opportunities that match your
+              skills. Build your career with our next-generation intelligent job search.
+            </p>
+          </div>
 
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400 transition-colors hover:bg-blue-100/50 dark:hover:bg-blue-950/30">
-              <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} className="text-blue-600 dark:text-blue-400" />
-              <span>#1 Job Platform in India</span>
-            </div>
-
-            {/* Main Heading */}
-            <div className="space-y-4">
-              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl xl:text-7xl">
-                Find Your Dream Job at{" "}
-                <span className="block mt-2">
-                  <span className="text-blue-600">Hire</span>
-                  <span className="text-red-500">Heaven</span>
-                </span>
-              </h1>
-              <p className="max-w-xl text-lg leading-relaxed text-gray-600 dark:text-slate-400 sm:text-xl">
-                Connect with top employers and discover opportunities that match your
-                skills. Whether you're a job seeker or recruiter, we've got you covered
-                with powerful tools and seamless experience.
-              </p>
-            </div>
-
-            {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-8 pt-4">
-              {[
-                { label: "Active Jobs", value: "10k+" },
-                { label: "Companies", value: "5k+" },
-                { label: "Job Seekers", value: "50k+" },
-              ].map((stat) => (
-                <div key={stat.label} className="flex flex-col gap-1">
-                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-tight sm:text-3xl">
-                    {stat.value}
-                  </span>
-                  <span className="text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wider">
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:items-center">
-              <Link href="/jobs">
+          {/* The Prominent Search Bar */}
+          <div className="w-full max-w-2xl space-y-2.5">
+            <div className="relative w-full bg-white dark:bg-slate-900 rounded-full border border-gray-200 dark:border-slate-800 shadow-lg shadow-blue-900/5 focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-500 transition-all p-1.5 flex items-center gap-2">
+              <div className="relative flex-1 flex items-center gap-2.5 pl-3.5 min-w-0">
+                <HugeiconsIcon icon={Search01Icon} className="text-gray-400 dark:text-slate-500 h-4.5 w-4.5 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={queryText}
+                  onChange={(e) => setQueryText(e.target.value)}
+                  placeholder='Describe your ideal job... (e.g., "remote React internships in Ahmedabad above 8 LPA")'
+                  className="w-full bg-transparent border-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none text-xs sm:text-sm md:text-base py-1.5 min-w-0"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAISearch();
+                    }
+                  }}
+                />
+              </div>
+              
+              <div className="flex-shrink-0 pr-0.5">
                 <Button
-                  size="lg"
-                  className="group relative h-14 rounded-xl bg-[#0f172a] dark:bg-white dark:text-slate-900 px-8 py-4 transition-all hover:bg-[#1e293b] dark:hover:bg-slate-100 active:scale-[0.98]"
+                  onClick={handleAISearch}
+                  disabled={loading}
+                  type="button"
+                  className="h-9 sm:h-10 px-4 sm:px-5 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-bold transition-all shadow-md shadow-blue-500/10 hover:shadow-lg active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm"
                 >
-                  <div className="flex items-center gap-3">
-                    <HugeiconsIcon icon={Search01Icon} size={20} className="text-blue-400 dark:text-blue-600 group-hover:scale-110 transition-transform" />
-                    <span className="font-semibold text-white dark:text-slate-900">Browse Jobs</span>
-                    <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="text-gray-400 dark:text-slate-500 group-hover:translate-x-1 transition-transform" />
-                  </div>
+                  {loading ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <span>✨ Search with AI</span>
+                  )}
                 </Button>
-              </Link>
-
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-14 rounded-xl px-8 border-gray-200 dark:border-slate-700 bg-transparent hover:bg-gray-50 dark:hover:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-600 text-gray-700 dark:text-slate-300 transition-all"
-              >
-                <div className="flex items-center gap-2">
-                  <HugeiconsIcon icon={PlayIcon} size={18} className="text-blue-600 dark:text-blue-400" />
-                  <span className="font-semibold">Learn More</span>
-                </div>
-              </Button>
+              </div>
             </div>
 
-            {/* Bottom Features List */}
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 pt-6 border-t border-gray-100 dark:border-slate-800 w-full">
-              {[
-                "Free to use",
-                "Verified employers",
-                "Secure platform",
-              ].map((feature) => (
-                <div key={feature} className="flex items-center gap-2 group">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 transition-colors group-hover:bg-blue-100 dark:group-hover:bg-blue-950/50">
-                    <HugeiconsIcon icon={Tick01Icon} size={12} />
-                  </div>
-                  <span className="text-sm font-medium text-gray-600 dark:text-slate-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                    {feature}
-                  </span>
-                </div>
+            {/* Clickable Examples / Suggested Queries */}
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm pt-2">
+              <span className="text-gray-400 dark:text-slate-500 font-medium">Try:</span>
+              {examples.map((ex, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setQueryText(ex)}
+                  className="px-3.5 py-1.5 rounded-full border border-gray-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-400 bg-gray-50/55 hover:bg-blue-50/30 dark:bg-slate-900/30 dark:hover:bg-blue-950/20 text-gray-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 font-medium transition-all text-left cursor-pointer"
+                >
+                  {ex.length > 40 ? `${ex.substring(0, 40)}...` : ex}
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Right Image Column */}
-          <div className="relative lg:block animate-in fade-in zoom-in duration-1000 ease-out">
-            {/* Image Container */}
-            <div className="relative overflow-hidden rounded-[2.5rem] border-[12px] border-white dark:border-slate-800 bg-white dark:bg-slate-800 shadow-2xl shadow-blue-900/10 dark:shadow-blue-950/30">
-              <Image
-                src="/hero-image.png"
-                alt="Professional woman in a modern office environment"
-                width={800}
-                height={800}
-                className="h-full w-full object-cover"
-                priority
-              />
-              {/* Glass ring overlay */}
-              <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 rounded-[1.8rem]" />
-            </div>
+          {/* Stats Section (Centered) */}
+          <div className="flex flex-wrap items-center justify-center gap-12 sm:gap-20 pt-8 max-w-3xl">
+            {[
+              { label: "Active Jobs", value: "10k+" },
+              { label: "Companies", value: "5k+" },
+              { label: "Job Seekers", value: "50k+" },
+            ].map((stat) => (
+              <div key={stat.label} className="flex flex-col items-center gap-1.5 select-none">
+                <span className="text-3xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight sm:text-4xl">
+                  {stat.value}
+                </span>
+                <span className="text-xs font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom Features List (Centered) */}
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 pt-8 border-t border-gray-150 dark:border-slate-900 max-w-2xl w-full">
+            {[
+              "Free to use",
+              "Verified employers",
+              "Secure platform",
+            ].map((feature) => (
+              <div key={feature} className="flex items-center gap-2 select-none">
+                <div className="flex h-5.5 w-5.5 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 transition-colors">
+                  <HugeiconsIcon icon={Tick01Icon} size={12} />
+                </div>
+                <span className="text-sm font-semibold text-gray-600 dark:text-slate-400">
+                  {feature}
+                </span>
+              </div>
+            ))}
           </div>
 
         </div>

@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import { getBuffer } from "../utils/buffer.js";
 import { CareerGuidanceService } from "../services/careerGuidance.service.js";
 import { ResumeAnalysisService } from "../services/resumeAnalysis.service.js";
+import { JobSearchQueryService } from "../services/jobSearchQuery.service.js";
 
 dotenv.config();
 
@@ -213,3 +214,28 @@ export const analyzeResume = tryCatch(async(req, res, next) => {
         return next(new ErrorHandler(500, `Failed to analyze resume: ${message}`));
     }
 });
+
+export const extractJobFilters = tryCatch(async (req: Request, res: Response, next) => {
+    const { query } = req.body;
+
+    if (!query) {
+        return res.status(400).json({
+            success: false,
+            message: "Query is required"
+        });
+    }
+
+    try {
+        const filters = await JobSearchQueryService.extractFilters(query);
+
+        return res.status(200).json({
+            success: true,
+            filters
+        });
+    } catch (error: any) {
+        console.error("Job Query Filter Extraction Controller Error:", error);
+        const statusCode = error instanceof ErrorHandler ? error.statusCode : 500;
+        const message = error instanceof Error ? error.message : "Failed to extract job filters";
+        return next(new ErrorHandler(statusCode, message));
+    }
+});
