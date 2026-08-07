@@ -10,6 +10,7 @@ import { getBuffer } from "../utils/buffer.js";
 import { CareerGuidanceService } from "../services/careerGuidance.service.js";
 import { ResumeAnalysisService } from "../services/resumeAnalysis.service.js";
 import { JobSearchQueryService } from "../services/jobSearchQuery.service.js";
+import { ResumeProcessingService } from "../services/resume/ResumeProcessingService.js";
 
 dotenv.config();
 
@@ -172,37 +173,9 @@ export const carrerGuidance = tryCatch(async(req, res, next) => {
 });
 
 export const analyzeResume = tryCatch(async(req, res, next) => {
-    const file = req.file;
-
-    if (!file) {
-        return res.status(400).json({
-            success: false,
-            message: "resume is required"
-        });
-    }
-
-    // Validate file type
-    if (file.mimetype !== "application/pdf") {
-        return res.status(400).json({
-            success: false,
-            message: "Only PDF resumes are supported"
-        });
-    }
-
-    // Validate file size (e.g. limit to 5MB)
-    const MAX_FILE_SIZE = 5 * 1024 * 1024;
-    if (file.size > MAX_FILE_SIZE) {
-        return res.status(400).json({
-            success: false,
-            message: "Resume file size exceeds the 5MB limit"
-        });
-    }
-
     try {
-        const buffer = getBuffer(file);
-        const pdfBase64 = buffer.replace("data:application/pdf;base64,", "");
-
-        const jsonResponse = await ResumeAnalysisService.analyze(pdfBase64);
+        const processedResume = await ResumeProcessingService.process(req.file);
+        const jsonResponse = await ResumeAnalysisService.analyze(processedResume);
 
         return res.status(200).json({
             success: true,
@@ -210,6 +183,9 @@ export const analyzeResume = tryCatch(async(req, res, next) => {
         });
     } catch (error: any) {
         console.error("Resume Analysis Error:", error);
+        if (error instanceof ErrorHandler) {
+            return next(error);
+        }
         const message = error instanceof Error ? error.message : "Failed to analyze resume";
         return next(new ErrorHandler(500, `Failed to analyze resume: ${message}`));
     }

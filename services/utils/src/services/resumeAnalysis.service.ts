@@ -1,6 +1,7 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { resumeAnalysisSchema, ResumeAnalysis } from "../schemas/resumeAnalysis.schema.js";
 import { resumeAnalysisPrompt } from "../prompts/resumeAnalysis.prompt.js";
+import { ProcessedResume } from "./resume/ResumeProcessingService.js";
 
 export class ResumeAnalysisService {
   private static model: ChatGoogleGenerativeAI;
@@ -21,7 +22,7 @@ export class ResumeAnalysisService {
   }
 
   
-  static async analyze(pdfBase64: string): Promise<ResumeAnalysis> {
+  static async analyze(processedResume: ProcessedResume): Promise<ResumeAnalysis> {
     const model = this.getModel();
 
     
@@ -29,7 +30,7 @@ export class ResumeAnalysisService {
 
    
     const formattedMessages = await resumeAnalysisPrompt.formatMessages({
-      pdfBase64
+      pdfBase64: processedResume.base64
     });
 
     const result = await structuredModel.invoke(formattedMessages);
