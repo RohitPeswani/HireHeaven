@@ -20,11 +20,13 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "nodemailer": "^8.0.10",
+    "multer": "^2.1.1",
     "@langchain/google-genai": "^0.1.2",
     "@langchain/core": "^0.3.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+     "@types/multer": "^2.1.0",
     "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.6",

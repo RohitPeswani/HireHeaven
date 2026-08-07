@@ -87,12 +87,12 @@ const JobsListingContent = () => {
 
   const hasActiveFilters = useMemo(() => {
     return !!(
-      searchQuery || 
-      stateFilter || 
-      cityFilter || 
-      salaryFilter || 
-      jobTypesFilter.length > 0 || 
-      workModesFilter.length > 0 || 
+      searchQuery ||
+      stateFilter ||
+      cityFilter ||
+      salaryFilter ||
+      jobTypesFilter.length > 0 ||
+      workModesFilter.length > 0 ||
       datePostedFilter
     );
   }, [searchQuery, stateFilter, cityFilter, salaryFilter, jobTypesFilter, workModesFilter, datePostedFilter]);
@@ -195,7 +195,7 @@ const JobsListingContent = () => {
   // Paginated subset calculations
   const totalJobsCount = filteredJobs.length;
   const totalPages = Math.ceil(totalJobsCount / limit);
-  
+
   const paginatedJobs = useMemo(() => {
     const start = (page - 1) * limit;
     return filteredJobs.slice(start, start + limit);
@@ -217,7 +217,7 @@ const JobsListingContent = () => {
   return (
     <div className="min-h-screen bg-gray-50/30 dark:bg-slate-950 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-        
+
         {/* Header Title Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
@@ -233,9 +233,9 @@ const JobsListingContent = () => {
         {/* Global Search Bar & Mobile Filters trigger */}
         <div className="flex gap-4">
           <div className="relative flex-1">
-            <HugeiconsIcon 
-              icon={Search01Icon} 
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 h-5 w-5" 
+            <HugeiconsIcon
+              icon={Search01Icon}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 h-5 w-5"
             />
             <input
               type="text"
@@ -248,11 +248,11 @@ const JobsListingContent = () => {
 
           <Sheet>
             <SheetTrigger render={<Button
-                className="lg:hidden h-12 px-6 bg-gray-900 dark:bg-white text-white dark:text-slate-900 hover:bg-gray-800 dark:hover:bg-slate-100 rounded-2xl font-bold flex items-center gap-2 group transition-all shrink-0 cursor-pointer"
-              >
-                <HugeiconsIcon icon={FilterIcon} size={20} className="group-hover:rotate-12 transition-transform" />
-                Filters
-              </Button>}>
+              className="lg:hidden h-12 px-6 bg-gray-900 dark:bg-white text-white dark:text-slate-900 hover:bg-gray-800 dark:hover:bg-slate-100 rounded-2xl font-bold flex items-center gap-2 group transition-all shrink-0 cursor-pointer"
+            >
+              <HugeiconsIcon icon={FilterIcon} size={20} className="group-hover:rotate-12 transition-transform" />
+              Filters
+            </Button>}>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0 bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 overflow-y-auto">
               <div className="p-6">
@@ -279,7 +279,7 @@ const JobsListingContent = () => {
 
         {/* Main Content Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          
+
           {/* Sidebar Filter Panel (visible on desktop) */}
           <div className="hidden lg:block lg:col-span-1">
             <FilterSidebar
@@ -302,7 +302,7 @@ const JobsListingContent = () => {
 
           {/* Jobs Listing Column */}
           <div className="col-span-1 lg:col-span-3 space-y-6">
-            
+
             {/* Active Filter Badges */}
             {hasActiveFilters && (
               <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100/80 dark:border-slate-800 shadow-xs animate-in fade-in duration-300">

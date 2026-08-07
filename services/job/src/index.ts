@@ -57,7 +57,6 @@ async function initDB(){
       CREATE INDEX IF NOT EXISTS idx_jobs_recruiter_id ON jobs(posted_by_recruiter_id);
       CREATE INDEX IF NOT EXISTS idx_jobs_title ON jobs(title);
       CREATE INDEX IF NOT EXISTS idx_jobs_role ON jobs(role);
-      CREATE INDEX IF NOT EXISTS idx_jobs_location ON jobs(location);
 
       CREATE INDEX IF NOT EXISTS idx_applications_job_id ON applications(job_id);
       CREATE INDEX IF NOT EXISTS idx_applications_applicant_id ON applications(applicant_id);
