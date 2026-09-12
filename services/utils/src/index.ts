@@ -4,9 +4,7 @@ import routes from './routes/index.js';
 import {v2 as cloudinary} from 'cloudinary';
 import { ErrorHandler } from './utils/errorHandler.js';
 import cors from 'cors';
-
-
-
+import { EmbeddingService } from './services/embeddings/EmbeddingService.js';
 
 
 dotenv.config();
@@ -37,12 +35,15 @@ app.use((error: any, req : Request, res : Response, next : NextFunction) => {
       });
    }
 
+   console.error("from utils index.ts", error.message);
+
    return res.status(500).json({
-      message: "Internal Server Error"
+      message: "Internal server error"
    });
 
 });
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, async () => {
     console.log(`utils service is running on port ${process.env.PORT}`);
+
 })

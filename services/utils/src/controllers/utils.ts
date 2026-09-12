@@ -11,6 +11,12 @@ import { CareerGuidanceService } from "../services/careerGuidance.service.js";
 import { ResumeAnalysisService } from "../services/resumeAnalysis.service.js";
 import { JobSearchQueryService } from "../services/jobSearchQuery.service.js";
 import { ResumeProcessingService } from "../services/resume/ResumeProcessingService.js";
+import { ProfileResumeProcessingService } from "../services/resume/ProfileResumeProcessingService.js";
+import { JobEmbeddingService } from "../services/embeddings/JobEmbeddingService.js";
+import { ResumeEmbeddingService } from "../services/embeddings/ResumeEmbeddingService.js";
+import { JobEmbeddingInput } from "../services/embeddings/buildJobEmbeddingText.js";
+import { jobEmbeddingRequestSchema } from "../schemas/jobEmbedding.schema.js";
+import { resumeUrlRequestSchema } from "../schemas/resumeUrl.schema.js";
 
 dotenv.config();
 
@@ -115,6 +121,8 @@ export const uploadFileController = tryCatch(async (req, res) => {
 export const deleteFileController = tryCatch(async (req, res) => {
     const { publicId } = req.body;
 
+    console.log("from utils service", publicId);
+
     if (!publicId) {
         return res.status(400).json({
             success: false,
@@ -123,6 +131,8 @@ export const deleteFileController = tryCatch(async (req, res) => {
     }
 
     const result = await cloudinary.v2.uploader.destroy(publicId);
+
+    
 
     if (result.result !== "ok") {
         return res.status(404).json({
@@ -214,4 +224,79 @@ export const extractJobFilters = tryCatch(async (req: Request, res: Response, ne
         const message = error instanceof Error ? error.message : "Failed to extract job filters";
         return next(new ErrorHandler(statusCode, message));
     }
-});
+});
+
+export const generateJobEmbeddingController = tryCatch(async (req: Request, res: Response, next) => {
+    const parseResult = jobEmbeddingRequestSchema.safeParse(req.body);
+
+    if (!parseResult.success) {
+        const errorMessages = parseResult.error.errors.map(err => err.message).join(", ");
+        return next(new ErrorHandler(400, `Invalid job data: ${errorMessages}`));
+    }
+
+    const {
+        job_id,
+        title,
+        role,
+        description,
+        company_name,
+        city,
+        state,
+        job_type,
+        work_location
+    } = parseResult.data;
+
+    const jobInput: JobEmbeddingInput = {
+        title: title ?? null,
+        role: role ?? null,
+        description: description ?? null,
+        companyName: company_name ?? null,
+        city: city ?? null,
+        state: state ?? null,
+        jobType: job_type ?? null,
+        workLocation: work_location ?? null
+    };
+
+    try {
+        const embedding = await JobEmbeddingService.generateJobEmbedding(jobInput);
+
+        return res.status(200).json({
+            success: true,
+            job_id,
+            embedding
+        });
+    } catch (error: any) {
+        console.error("Job Embedding Controller Error:", error);
+        const statusCode = error instanceof ErrorHandler ? error.statusCode : 500;
+        const message = error instanceof Error ? error.message : "Failed to generate job embedding";
+        return next(new ErrorHandler(statusCode, message));
+    }
+});
+
+
+export const generateResumeEmbeddingController = tryCatch(async (req: Request, res: Response, next) => {
+    const parseResult = resumeUrlRequestSchema.safeParse(req.body);
+    const resumeUrl = parseResult.success ? parseResult.data.resume_url : (req.body.resume_url || req.body.resumeUrl || req.body.url);
+
+    if (!resumeUrl) {
+        return next(new ErrorHandler(400, "Resume URL is required"));
+    }
+
+    try {
+        const embedding = await ResumeEmbeddingService.generateResumeEmbedding(resumeUrl);
+
+        return res.status(200).json({
+            success: true,
+            embedding
+        });
+    } catch (error: any) {
+        console.error("Resume Embedding Controller Error:", error);
+        const statusCode = error instanceof ErrorHandler ? error.statusCode : 500;
+        const message = error instanceof Error ? error.message : "Failed to generate resume embedding";
+        return next(new ErrorHandler(statusCode, message));
+    }
+});
+
+
+
+

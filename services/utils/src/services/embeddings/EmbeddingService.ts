@@ -11,7 +11,7 @@ export class EmbeddingService {
         throw new ErrorHandler(500, "GEMINI_API_KEY is not defined in the environment");
       }
       this.model = new GoogleGenerativeAIEmbeddings({
-        modelName: "text-embedding-004",
+        modelName: "gemini-embedding-001",
         apiKey: apiKey,
       });
     }

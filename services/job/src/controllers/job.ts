@@ -5,6 +5,8 @@ import { sql } from "../utils/db.js";
 import { ErrorHandler } from "../utils/errorHandler.js";
 import { tryCatch } from "../utils/tryCatch.js";
 import { applicationStatusUpdateTemplate } from "../utils/template.js";
+import { generateJobEmbedding, updateJobEmbedding, JobEmbeddingPayload } from "../services/jobEmbedding.service.js";
+import { JobSemanticSearchService } from "../services/jobSemanticSearch.service.js";
 
 
 export const createCompany = tryCatch(async(req : AuthenticatedRequest, res, next) => {
@@ -144,7 +146,7 @@ export const createJob = tryCatch(async(req : AuthenticatedRequest, res, next) =
         return;
     }
 
-    const [company] = await sql`SELECT company_id FROM companies WHERE company_id = ${company_id} AND recruiter_id = ${user.user_id}`;
+    const [company] = await sql`SELECT company_id, name FROM companies WHERE company_id = ${company_id} AND recruiter_id = ${user.user_id}`;
 
     if(!company){
         next(new ErrorHandler(404, "Company not found"));
@@ -152,6 +154,24 @@ export const createJob = tryCatch(async(req : AuthenticatedRequest, res, next) =
     }
 
     const [job] = await sql`INSERT INTO jobs (title, description, salary, city, state, job_type, openings, role, work_location, company_id, posted_by_recruiter_id) VALUES (${title}, ${description}, ${salary}, ${city}, ${state}, ${job_type}, ${openings}, ${role}, ${work_location}, ${company_id}, ${user.user_id}) RETURNING *`;
+
+    
+        const payload: JobEmbeddingPayload = {
+            job_id: job.job_id,
+            title: job.title,
+            role: job.role,
+            description: job.description,
+            company_name: company?.name || null,
+            city: job.city,
+            state: job.state,
+            job_type: job.job_type,
+            work_location: job.work_location,
+            salary: job.salary,
+            openings: job.openings
+        };
+
+        const embedding = await generateJobEmbedding(payload);
+        await updateJobEmbedding(job.job_id, embedding);
 
     const [companyWithJob] = await sql`SELECT c.*, COALESCE(
     (
@@ -181,14 +201,50 @@ export const updateJob = tryCatch(async(req : AuthenticatedRequest, res, next) =
     const {jobId} = req.params;
     const {title, description, salary, city, state, job_type, openings, role, work_location, is_active} = req.body;
 
-    const [job] = await sql`SELECT job_id FROM jobs WHERE job_id = ${jobId} AND posted_by_recruiter_id = ${user.user_id}`;
+    const [job] = await sql`SELECT * FROM jobs WHERE job_id = ${jobId} AND posted_by_recruiter_id = ${user.user_id}`;
 
     if(!job){
         next(new ErrorHandler(404, "Job not found"));
         return;
     }
 
+    const isFieldChanged = (newVal: any, oldVal: any) =>
+        newVal !== undefined && newVal !== null && String(newVal).trim() !== String(oldVal || "").trim();
+
+    const isEmbeddingRelevantChanged =
+        (title !== undefined && isFieldChanged(title, job.title)) ||
+        (role !== undefined && isFieldChanged(role, job.role)) ||
+        (description !== undefined && isFieldChanged(description, job.description)) ||
+        (city !== undefined && isFieldChanged(city, job.city)) ||
+        (state !== undefined && isFieldChanged(state, job.state)) ||
+        (job_type !== undefined && isFieldChanged(job_type, job.job_type)) ||
+        (work_location !== undefined && isFieldChanged(work_location, job.work_location)) ||
+        (salary !== undefined && isFieldChanged(salary, job.salary)) ||
+        (openings !== undefined && isFieldChanged(openings, job.openings));
+
     const [updatedJob] = await sql`UPDATE jobs SET title = COALESCE(${title}, title), description = COALESCE(${description}, description), salary = COALESCE(${salary}, salary), city = COALESCE(${city}, city), state = COALESCE(${state}, state), job_type = COALESCE(${job_type}, job_type), openings = COALESCE(${openings}, openings), role = COALESCE(${role}, role), work_location = COALESCE(${work_location}, work_location), is_active = COALESCE(${is_active}, is_active) WHERE job_id = ${jobId} RETURNING *`;
+
+    if (isEmbeddingRelevantChanged) {
+        
+            const [company] = await sql`SELECT name FROM companies WHERE company_id = ${updatedJob.company_id}`;
+            const payload: JobEmbeddingPayload = {
+                job_id: updatedJob.job_id,
+                title: updatedJob.title,
+                role: updatedJob.role,
+                description: updatedJob.description,
+                company_name: company?.name || null,
+                city: updatedJob.city,
+                state: updatedJob.state,
+                job_type: updatedJob.job_type,
+                work_location: updatedJob.work_location,
+                salary: updatedJob.salary,
+                openings: updatedJob.openings
+            };
+
+            const embedding = await generateJobEmbedding(payload);
+            await updateJobEmbedding(updatedJob.job_id, embedding);
+    }
+    
 
     const [companyWithJob] = await sql`SELECT c.*, COALESCE(
     (
@@ -520,3 +576,27 @@ export const getAllRecruiterJobs = tryCatch(async(req : AuthenticatedRequest, re
         jobs
     });
 })
+
+export const semanticJobSearch = tryCatch(async (req: AuthenticatedRequest, res, next) => {
+    const user = req.user;
+
+    if (!user) {
+        return next(new ErrorHandler(401, "Unauthorized"));
+    }
+
+    const { userId, limit } = req.body;
+    const targetUserId = userId ?? user.user_id;
+
+    if (!targetUserId) {
+        return next(new ErrorHandler(400, "userId is required"));
+    }
+
+    const jobs = await JobSemanticSearchService.searchJobs(targetUserId, limit);
+
+    return res.status(200).json({
+        success: true,
+        jobs
+    });
+});
+
+export const jobSemanticSearch = semanticJobSearch;

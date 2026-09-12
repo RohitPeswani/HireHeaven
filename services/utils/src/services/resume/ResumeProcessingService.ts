@@ -11,12 +11,6 @@ export interface UploadedFile {
 
 export interface ProcessedResume {
   base64: string;
-  // Future extensibility placeholders
-  text?: string;
-  embeddings?: number[];
-  metadata?: Record<string, any>;
-  language?: string;
-  parsedData?: any;
 }
 
 export class ResumeProcessingService {

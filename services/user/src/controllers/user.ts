@@ -130,6 +130,8 @@ export const updateResume = tryCatch(async(req : AuthenticatedRequest, res, next
 
     const oldPublicId = user.resume_public_id;
 
+    console.log("old public id ", oldPublicId);
+
     const buffer = getBuffer(file);
 
 
@@ -141,16 +143,65 @@ export const updateResume = tryCatch(async(req : AuthenticatedRequest, res, next
         buffer
     });
 
-    const {data : deleteData} = await axios.post(`${process.env.UTILS_SERVICE_URL}/api/utils/delete`, {
+
+
+    const {data : deleteData} = await axios.put(`${process.env.UTILS_SERVICE_URL}/api/utils/delete`, {
         publicId : oldPublicId
     });
 
+    // console.log("from updateResume function", user.user_id);
+
     const [updatedUser] = await sql`UPDATE users SET resume = ${data.url}, resume_public_id = ${data.public_id} WHERE user_id = ${user.user_id} RETURNING *`;
+
+console.log("from updateResume function", updatedUser);
+    // Synchronously generate resume embedding from Utils Service
+    let embedding: number[];
+    try {
+        const { data: embeddingData } = await axios.post(`${process.env.UTILS_SERVICE_URL}/api/utils/resume-embedding`, {
+            resume_url: data.url
+        });
+
+    
+
+
+        if (!embeddingData || !embeddingData.success || !Array.isArray(embeddingData.embedding)) {
+            return next(new ErrorHandler(500, "Invalid embedding response from Utils service"));
+        }
+
+        embedding = embeddingData.embedding;
+
+        
+        if (embedding.length !== 3072) {
+            return next(new ErrorHandler(500, `Incorrect embedding dimension: expected 3072, received ${embedding.length}`));
+        }
+    } catch (err: any) {
+        console.error("Resume Embedding Error:", err);
+        const statusCode = err instanceof ErrorHandler ? err.statusCode : (err.response?.status || 500);
+        const message = err.response?.data?.message || err.message || "Failed to generate resume embedding";
+        return next(new ErrorHandler(statusCode, message));
+    }
+
+    // Store embedding in resume_embeddings table (UPSERT)
+    try {
+        const formattedVector = `[${embedding.join(",")}]`;
+        await sql`
+            INSERT INTO resume_embeddings (user_id, embedding, updated_at)
+            VALUES (${user.user_id}, ${formattedVector}::halfvec, CURRENT_TIMESTAMP)
+            ON CONFLICT (user_id) DO UPDATE
+            SET embedding = EXCLUDED.embedding, updated_at = CURRENT_TIMESTAMP
+        `;
+    } catch (err: any) {
+        console.error("Database Error Saving Resume Embedding:", err);
+        const statusCode = err instanceof ErrorHandler ? err.statusCode : 500;
+        const message = err instanceof Error ? err.message : "Failed to store resume embedding in database";
+        return next(new ErrorHandler(statusCode, message));
+    }
 
     user = {...user, ...updatedUser};
     return res.status(200).json({
         success : true,
-        user
+        user,
+        embedding
     });
 })
 

@@ -6,6 +6,7 @@ import { ErrorHandler } from "./utils/errorHandler.js";
 import jobRoutes from './routes/job.js';
 
 
+
 dotenv.config();
 
 const app = express();
@@ -88,7 +89,8 @@ async function initDB(){
      company_id INTEGER NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
      posted_by_recruiter_id INTEGER NOT NULL,
      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     is_active BOOLEAN DEFAULT TRUE
+     is_active BOOLEAN DEFAULT TRUE,
+     embedding halfvec(3072)
     )
     `;
 
@@ -115,6 +117,8 @@ async function initDB(){
 
 
 }
+
+
 
 initDB().then(() => {
     app.listen(process.env.PORT, () => {

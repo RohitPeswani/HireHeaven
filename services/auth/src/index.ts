@@ -86,6 +86,12 @@ async function initDB(){
      PRIMARY KEY (user_id, skill_id)
     )
     `;
+    await sql`CREATE TABLE IF NOT EXISTS resume_embeddings (
+        user_id INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+        embedding halfvec(3072) NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );`;
     console.log('database initialized successfully');
 
     }catch(error){
