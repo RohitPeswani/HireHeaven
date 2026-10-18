@@ -17,6 +17,7 @@ import { ResumeEmbeddingService } from "../services/embeddings/ResumeEmbeddingSe
 import { JobEmbeddingInput } from "../services/embeddings/buildJobEmbeddingText.js";
 import { jobEmbeddingRequestSchema } from "../schemas/jobEmbedding.schema.js";
 import { resumeUrlRequestSchema } from "../schemas/resumeUrl.schema.js";
+import { jobMatchingGraph } from "../workflows/jobMatching/index.js";
 
 dotenv.config();
 
@@ -296,6 +297,36 @@ export const generateResumeEmbeddingController = tryCatch(async (req: Request, r
         return next(new ErrorHandler(statusCode, message));
     }
 });
+
+export const jobMatchingWorkflowController = tryCatch(async (req: Request, res: Response, next) => {
+    const { userId, query, limit, token } = req.body;
+
+    if (userId === undefined || userId === null || userId === "") {
+        return next(new ErrorHandler(400, "userId is required"));
+    }
+
+    const sanitizedQuery = typeof query === "string" && query.trim() ? query.trim() : undefined;
+
+    try {
+        const result = await jobMatchingGraph.invoke({
+            userId,
+            query: sanitizedQuery,
+            limit: limit ? Number(limit) : 10,
+            token
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: result
+        });
+    } catch (error: any) {
+        console.error("Job Matching Workflow Controller Error:", error);
+        const statusCode = error instanceof ErrorHandler ? error.statusCode : 500;
+        const message = error instanceof Error ? error.message : "Failed to execute job matching workflow";
+        return next(new ErrorHandler(statusCode, message));
+    }
+});
+
 
 
 

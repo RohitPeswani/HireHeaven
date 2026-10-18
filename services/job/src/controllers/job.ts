@@ -584,14 +584,26 @@ export const semanticJobSearch = tryCatch(async (req: AuthenticatedRequest, res,
         return next(new ErrorHandler(401, "Unauthorized"));
     }
 
-    const { userId, limit } = req.body;
+    const { userId, limit, filters, ...directFilters } = req.body || {};
     const targetUserId = userId ?? user.user_id;
 
     if (!targetUserId) {
         return next(new ErrorHandler(400, "userId is required"));
     }
 
-    const jobs = await JobSemanticSearchService.searchJobs(targetUserId, limit);
+    const effectiveFilters = filters ?? {
+        title: directFilters.title,
+        state: directFilters.state,
+        city: directFilters.city,
+        company: directFilters.company,
+        role: directFilters.role,
+        job_type: directFilters.job_type,
+        work_location: directFilters.work_location,
+        min_salary: directFilters.min_salary,
+        max_salary: directFilters.max_salary,
+    };
+
+    const jobs = await JobSemanticSearchService.searchJobs(targetUserId, limit, effectiveFilters);
 
     return res.status(200).json({
         success: true,

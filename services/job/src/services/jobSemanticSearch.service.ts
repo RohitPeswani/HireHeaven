@@ -1,5 +1,7 @@
 import { sql } from "../utils/db.js";
 import { ErrorHandler } from "../utils/errorHandler.js";
+import type { JobSearchQuery } from "../types/jobSearchQuery.type.js";
+export type { JobSearchQuery };
 
 export interface SemanticSearchJobResult {
   job_id: number;
@@ -26,6 +28,7 @@ export interface SemanticSearchJobResult {
 export interface JobSemanticSearchOptions {
   userId: number | string;
   limit?: number;
+  filters?: JobSearchQuery | null;
 }
 
 /**
@@ -34,16 +37,40 @@ export interface JobSemanticSearchOptions {
  */
 export class JobSemanticSearchService {
   /**
-   * Finds jobs matching a user's saved resume embedding using pgvector cosine distance.
+   * Finds jobs matching a user's saved resume embedding using pgvector cosine distance,
+   * optionally filtered by structured criteria (title, state, city, company, role,
+   * job_type, work_location, min_salary, max_salary).
    *
    * @param userId The ID of the user whose resume embedding to match
    * @param limit Optional maximum number of jobs to return (default: 10)
+   * @param filters Optional structured filters to constrain the search
    * @returns Array of jobs with cosine distance included, ordered by smallest distance first
    */
   static async searchJobs(
     userId: number | string,
-    limit: number = 10
+    limit?: number,
+    filters?: JobSearchQuery | null
+  ): Promise<SemanticSearchJobResult[]>;
+  static async searchJobs(
+    options: JobSemanticSearchOptions
+  ): Promise<SemanticSearchJobResult[]>;
+  static async searchJobs(
+    userIdOrOptions: number | string | JobSemanticSearchOptions,
+    limit: number = 10,
+    filters?: JobSearchQuery | null
   ): Promise<SemanticSearchJobResult[]> {
+    let userId: number | string;
+    let effectiveLimit = limit;
+    let effectiveFilters = filters;
+
+    if (typeof userIdOrOptions === "object" && userIdOrOptions !== null) {
+      userId = userIdOrOptions.userId;
+      effectiveLimit = userIdOrOptions.limit ?? 10;
+      effectiveFilters = userIdOrOptions.filters;
+    } else {
+      userId = userIdOrOptions;
+    }
+
     if (userId === undefined || userId === null || userId === "") {
       throw new ErrorHandler(400, "userId is required");
     }
@@ -53,7 +80,7 @@ export class JobSemanticSearchService {
       throw new ErrorHandler(400, "Invalid userId: must be a valid number");
     }
 
-    const parsedLimit = limit !== undefined && limit !== null ? Number(limit) : 10;
+    const parsedLimit = effectiveLimit !== undefined && effectiveLimit !== null ? Number(effectiveLimit) : 10;
     if (isNaN(parsedLimit) || parsedLimit <= 0) {
       throw new ErrorHandler(400, "limit must be a positive number");
     }
@@ -117,7 +144,71 @@ export class JobSemanticSearchService {
     // 3. Format vector string for pgvector halfvec
     const formattedVector = `[${embeddingVector.join(",")}]`;
 
-    // 4. Perform cosine distance search on jobs.embedding
+    // 4. Build dynamic filter conditions and parameter values
+    const conditions: string[] = ["j.embedding IS NOT NULL"];
+    const queryParams: any[] = [formattedVector];
+    let paramIndex = 2; // $1 is formattedVector
+
+    if (effectiveFilters) {
+      if (effectiveFilters.title !== undefined && effectiveFilters.title !== null && String(effectiveFilters.title).trim() !== "") {
+        conditions.push(`j.title ILIKE $${paramIndex}`);
+        queryParams.push(`%${String(effectiveFilters.title).trim()}%`);
+        paramIndex++;
+      }
+
+      if (effectiveFilters.city !== undefined && effectiveFilters.city !== null && String(effectiveFilters.city).trim() !== "") {
+        conditions.push(`j.city ILIKE $${paramIndex}`);
+        queryParams.push(`%${String(effectiveFilters.city).trim()}%`);
+        paramIndex++;
+      }
+
+      if (effectiveFilters.state !== undefined && effectiveFilters.state !== null && String(effectiveFilters.state).trim() !== "") {
+        conditions.push(`j.state ILIKE $${paramIndex}`);
+        queryParams.push(`%${String(effectiveFilters.state).trim()}%`);
+        paramIndex++;
+      }
+
+      if (effectiveFilters.company !== undefined && effectiveFilters.company !== null && String(effectiveFilters.company).trim() !== "") {
+        conditions.push(`c.name ILIKE $${paramIndex}`);
+        queryParams.push(`%${String(effectiveFilters.company).trim()}%`);
+        paramIndex++;
+      }
+
+      if (effectiveFilters.role !== undefined && effectiveFilters.role !== null && String(effectiveFilters.role).trim() !== "") {
+        conditions.push(`j.role ILIKE $${paramIndex}`);
+        queryParams.push(`%${String(effectiveFilters.role).trim()}%`);
+        paramIndex++;
+      }
+
+      if (effectiveFilters.job_type !== undefined && effectiveFilters.job_type !== null && String(effectiveFilters.job_type).trim() !== "") {
+        conditions.push(`j.job_type = $${paramIndex}`);
+        queryParams.push(String(effectiveFilters.job_type).trim());
+        paramIndex++;
+      }
+
+      if (effectiveFilters.work_location !== undefined && effectiveFilters.work_location !== null && String(effectiveFilters.work_location).trim() !== "") {
+        conditions.push(`j.work_location = $${paramIndex}`);
+        queryParams.push(String(effectiveFilters.work_location).trim());
+        paramIndex++;
+      }
+
+      if (effectiveFilters.min_salary !== undefined && effectiveFilters.min_salary !== null && !isNaN(Number(effectiveFilters.min_salary))) {
+        conditions.push(`j.salary >= $${paramIndex}`);
+        queryParams.push(Number(effectiveFilters.min_salary));
+        paramIndex++;
+      }
+
+      if (effectiveFilters.max_salary !== undefined && effectiveFilters.max_salary !== null && !isNaN(Number(effectiveFilters.max_salary))) {
+        conditions.push(`j.salary <= $${paramIndex}`);
+        queryParams.push(Number(effectiveFilters.max_salary));
+        paramIndex++;
+      }
+    }
+
+    const limitParamIndex = paramIndex;
+    queryParams.push(validatedLimit);
+
+    // 5. Perform cosine distance search on jobs.embedding with filters applied
     const searchQuery = `
       SELECT 
         j.job_id,
@@ -139,17 +230,17 @@ export class JobSemanticSearchService {
         (j.embedding <=> $1::halfvec) AS cosine_distance
       FROM jobs j
       LEFT JOIN companies c ON j.company_id = c.company_id
-      WHERE j.embedding IS NOT NULL
+      WHERE ${conditions.join(" AND ")}
       ORDER BY j.embedding <=> $1::halfvec ASC
-      LIMIT $2
+      LIMIT $${limitParamIndex}
     `;
 
     let jobs: any[];
     try {
       if (typeof sql.query === "function") {
-        jobs = await sql.query(searchQuery, [formattedVector, validatedLimit]);
+        jobs = await sql.query(searchQuery, queryParams);
       } else {
-        jobs = await (sql as any)(searchQuery, [formattedVector, validatedLimit]);
+        jobs = await (sql as any)(searchQuery, queryParams);
       }
     } catch (error: any) {
       if (error instanceof ErrorHandler) {
@@ -164,6 +255,7 @@ export class JobSemanticSearchService {
 
     return (jobs || []).map((job: any) => ({
       ...job,
+      distance: Number(job.cosine_distance),
       cosine_distance: Number(job.cosine_distance)
     }));
   }
@@ -171,12 +263,19 @@ export class JobSemanticSearchService {
   // Instance method alias
   async searchJobs(
     userId: number | string,
-    limit: number = 10
+    limit?: number,
+    filters?: JobSearchQuery | null
+  ): Promise<SemanticSearchJobResult[]>;
+  async searchJobs(
+    options: JobSemanticSearchOptions
+  ): Promise<SemanticSearchJobResult[]>;
+  async searchJobs(
+    userIdOrOptions: number | string | JobSemanticSearchOptions,
+    limit: number = 10,
+    filters?: JobSearchQuery | null
   ): Promise<SemanticSearchJobResult[]> {
-    return JobSemanticSearchService.searchJobs(userId, limit);
+    return JobSemanticSearchService.searchJobs(userIdOrOptions as any, limit, filters);
   }
-
-  
 }
 
 export const searchJobsByResumeEmbedding = JobSemanticSearchService.searchJobs;
